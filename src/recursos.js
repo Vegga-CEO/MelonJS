@@ -1,25 +1,52 @@
 import { ORDEM_DOS_ESTILOS } from "./estilos.js";
-import { imagem, nomeDaFase } from "./systems/estilo.js";
+import { imagem } from "./systems/estilo.js";
 
-// Assets do protótipo para o loader.preload: o mapa da fase 1
-// (tools/gerar-fase1.mjs), as imagens geradas por tools/ e a fonte de pixel.
+// Todos os assets do jogo para o loader.preload: as imagens geradas por
+// tools/ (npm run arte), as que ainda servem da versão 1 e a fonte de pixel.
 // Cada imagem se chama "<base>-<estilo>" (ver imagem() em
 // src/systems/estilo.js) e fica em public/data/img/.
 
 // imagens que existem uma vez por estilo
-const IMAGENS_POR_TEMA = ["tileset", "sprites", "fx", "titulo", "logo"];
+const IMAGENS_POR_TEMA = [
+    // 4.1 ilha de lado e menu
+    "ilha-tiles",
+    "casa",
+    "torre",
+    "poste",
+    "lua",
+    "sol",
+    "nuvens",
+    "fundo-ilhas",
+    "menu-fundo",
+    // 4.2 personagens, inimigos e interface
+    "jogador",
+    "jogador-braco",
+    "zumbi",
+    "inimigos",
+    "navio",
+    "itens",
+    "painel",
+    "botao",
+    // 4.3 farol e Kraken
+    "farol-ilha",
+    "farol-topo",
+    "inimigos-mar",
+    "kraken",
+    "tentaculo",
+    // da versão 1: partículas (src/systems/particulas.js) e logo do menu
+    "fx",
+    "logo",
+];
 
 function montarLista() {
     const lista = [];
     for (const tema of ORDEM_DOS_ESTILOS) {
-        // o mapa acha o tileset embutido pelo nome do arquivo sem extensão
-        // ("tileset-mare"), então o nome da imagem precisa ser esse
-        const fase = nomeDaFase("fase1", tema);
-        lista.push({ name: fase, type: "tmx", src: `data/map/${fase}.tmj` });
         for (const base of IMAGENS_POR_TEMA) {
             const nome = imagem(base, tema);
             lista.push({ name: nome, type: "image", src: `data/img/${nome}.png` });
         }
+        // mapa da ilha da Fase 1 (tools/gerar-ilha.mjs), com o tileset embutido
+        lista.push({ name: `ilha-${tema}`, type: "tmx", src: `data/map/ilha-${tema}.tmj` });
     }
     // fonte de pixel (BMFont): descritor e página com o mesmo nome
     lista.push(
