@@ -45,7 +45,7 @@ export const COMO_JOGAR = [
             "Mouse aponta o facho",
             "Clique ou Espaço dispara a luz",
             "Monstros mortos enchem a energia: escolha melhorias",
-            "Kraken: siga os tentáculos do círculo até a ponta",
+            "Kraken: arraste reto de uma ponta à outra do tentáculo",
             "Esc pausa",
         ],
     },
