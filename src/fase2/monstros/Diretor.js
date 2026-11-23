@@ -304,6 +304,7 @@ export class Diretor {
             efeito("explosao");
             this.fase.tremer(3, 260);
             this.soltarEngrenagem(m.x, m.yCorpo);
+            this.fase.curarPorChefe?.();
         } else if (this.somDeMorte <= 0) {
             efeito("lanternaDesliga");
             this.somDeMorte = SOM_DE_MORTE;

@@ -173,6 +173,8 @@ export const MINI_CHEFE = {
     // vezes o dano do comum: 4, 3 e 5 por mordida (eram 8, 6 e 10)
     dano: 5 / 3,
     mordida: 1.8,
+    // vida da torre que volta ao matar um mini-chefe (fralção da vida máxima)
+    cura: 0.25,
     // os comuns aparecem mais devagar enquanto há mini-chefe (multiplica o intervalo)
     intervaloComChefe: 1.5,
     // barra de vida acima dele
@@ -220,39 +222,32 @@ export const MELHORIA = {
     // Muralha: vida máxima a mais e cura
     muralhaVida: 20,
     muralhaCura: 20,
-    // Lente larga: graus de abertura a mais por nível (era 6)
-    lente: 10,
+    // Lente larga: graus de abertura a mais por nível (era 10)
+    lente: 6,
     // Mecanismo: a espera da recarga vezes (1 − mecanismo) por nível
     mecanismo: 0.15,
     // Pavio longo: segundos de disparo a mais por nível
     pavio: 0.1,
-    // Facho duplo: fração do dano do facho do lado oposto
-    duplo: 0.6,
+    // Facho duplo: fração do dano do facho do lado oposto (era 0,6)
+    duplo: 1,
     // Luz que queima: segundos lentos e a fração da velocidade
+    // (era 0.5 = 50% de lentidão) 
     queima: 1.5,
-    lentidao: 0.5,
-};
-
-// Conserto passivo: sem levar dano por `semDano` s, a torre recupera
-// `quantidade` de vida a cada `intervalo` s.
-export const REGENERACAO = {
-    semDano: 6,
-    intervalo: 4,
-    quantidade: 1,
+    lentidao: 0.7,
 };
 
 // Diretor de ondas: a cada `intervalo` (sorteado entre os dois valores, em
 // segundos) nasce um monstro sorteado pelos pesos (a piranha vem em grupo),
 // até `maximo` monstros vivos. Uma linha por hora, da 0h à 4h.
 // A 0h é calma; da 2h em diante as ondas apertam, porque a lanterna e as
-// melhorias do farol já deixam o facho bem mais forte. Intervalos 25% menores
-// e máximos 30% maiores que na v2.
+// melhorias do farol já deixam o facho bem mais forte. Depois do playtest,
+// 30% mais monstros: intervalos dividios por 1,3 e máximos 30% maiores.
 export const ONDAS = [
-    { intervalo: [1.95, 2.55], pesos: { morcego: 3, piranha: 1, serpente: 0 }, maximo: 10 },
-    { intervalo: [1.58, 2.17], pesos: { morcego: 3, piranha: 2, serpente: 1 }, maximo: 12 },
-    { intervalo: [1.27, 1.72], pesos: { morcego: 3, piranha: 2, serpente: 1 }, maximo: 16 },
-    { intervalo: [0.98, 1.35], pesos: { morcego: 3, piranha: 3, serpente: 2 }, maximo: 20 },
-    { intervalo: [0.71, 1.01], pesos: { morcego: 4, piranha: 3, serpente: 3 }, maximo: 25 },
+    { intervalo: [1.5, 1.96], pesos: { morcego: 3, piranha: 1, serpente: 0 }, maximo: 13 },
+    { intervalo: [1.22, 1.67], pesos: { morcego: 3, piranha: 2, serpente: 1 }, maximo: 16 },
+    { intervalo: [0.98, 1.32], pesos: { morcego: 3, piranha: 2, serpente: 1 }, maximo: 21 },
+    { intervalo: [0.75, 1.04], pesos: { morcego: 3, piranha: 3, serpente: 2 }, maximo: 26 },
+    { intervalo: [0.55, 0.78], pesos: { morcego: 4, piranha: 3, serpente: 3 }, maximo: 33 },
 ];
 // espera antes do primeiro monstro da fase
 export const PRIMEIRA_ONDA = 1.5;

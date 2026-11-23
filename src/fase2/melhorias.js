@@ -62,7 +62,7 @@ export const MELHORIAS = [
     {
         id: "queima",
         nome: "Luz que queima",
-        linhas: ["Quem a luz toca", `fica lento ${numero(MELHORIA.queima)} s.`],
+        linhas: [`Quem a luz toca fica ${Math.round((1 - MELHORIA.lentidao) * 100)}%`, `mais lento ${numero(MELHORIA.queima)} s.`],
         icone: 13,
         maximo: 1,
     },

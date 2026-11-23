@@ -194,7 +194,6 @@ export class CamadaAcima extends Camada {
     draw(renderer) {
         const fase = this.fase;
         fase.diretor?.desenharChefes(renderer);
-        this.desenharConserto(renderer);
         this.desenharFarol(renderer);
         this.desenharAnelDoConserto(renderer);
         this.desenharArco(renderer);
@@ -205,15 +204,7 @@ export class CamadaAcima extends Camada {
         desenharBrilhos(renderer);
     }
 
-    // Conserto passivo: um brilho fraco respirando em volta da base...
-    desenharConserto(renderer) {
-        if (this.fase.consertando) {
-            const respira = 0.5 + 0.5 * Math.sin(this.tempo * 0.004);
-            brilhoRedondo(renderer, coresDaFase2().espuma, FAROL.x, FAROL.y, 42, 0.035 + 0.03 * respira, 2);
-        }
-    }
-
-    // ...e um anel de pontos que se abre a cada vida recuperada.
+    // Um anel de pontos que se abre quando a torre se conserta (mini-chefe morto).
     desenharAnelDoConserto(renderer) {
         const k = this.fase.brilhoDoConserto;
         if (k > 0) {

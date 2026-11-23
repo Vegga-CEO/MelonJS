@@ -1,7 +1,7 @@
 import { event, input } from "melonjs";
 import { CONFIG } from "../config.js";
 import { CamadaAcima, CamadaMonstros, Cenario } from "../fase2/camadas.js";
-import { CAMERA, DT_MAXIMO, FAROL, MAR, MUNDO, NIVEL_MAXIMO, REGENERACAO, TORRE } from "../fase2/config.js";
+import { CAMERA, DT_MAXIMO, FAROL, MAR, MINI_CHEFE, MUNDO, NIVEL_MAXIMO, TORRE } from "../fase2/config.js";
 import { Energia } from "../fase2/energia.js";
 import { Facho } from "../fase2/facho.js";
 import { HudFase2 } from "../fase2/HudFase2.js";
@@ -31,8 +31,8 @@ import { FaseBase } from "./FaseBase.js";
 // Energia e melhorias: cada monstro morto pelo facho solta faíscas que
 // enchem a barra de energia (src/fase2/energia.js); cheia, o jogo para e o
 // painel de escolha abre (src/fase2/PainelMelhorias.js, melhorias.js).
-// Conserto passivo: sem dano por REGENERACAO.semDano s, a torre recupera
-// vida aos poucos, com um brilho na base (CamadaAcima).
+// Conserto: não há mais conserto passivo; ao matar um mini-chefe a torre
+// recupera MINI_CHEFE.cura da vida máxima (`curaPorChefe`), com um anel de luz na base (CamadaAcima).
 //
 // API para o Kraken (tarefa 8):
 //   this.facho                 ângulo, disparando, cone, contem() (facho.js)
@@ -72,10 +72,7 @@ export class Fase2Stage extends FaseBase {
         this.kraken = null;
         this.energia = null;
         this.painel = null;
-        // segundos desde o último dano na torre e até o próximo conserto
-        this.desdeODano = 0;
-        this.proximoConserto = 0;
-        // 1 a cada vida consertada, caindo até 0 (só desenho)
+        // 1 a cada conserto da torre (mini-chefe morto), caindo até 0 (só desenho)
         this.brilhoDoConserto = 0;
         // 1 ao escolher uma melhoria, caindo até 0 (brilho no farol)
         this.brilhoDaMelhoria = 0;
@@ -113,8 +110,6 @@ export class Fase2Stage extends FaseBase {
         this.botaoAntes = ponteiro.apertado;
         this.botaoDoAtaque = false;
         this.movimentoDaCamera = null;
-        this.desdeODano = 0;
-        this.proximoConserto = REGENERACAO.intervalo;
         this.brilhoDoConserto = 0;
         this.brilhoDaMelhoria = 0;
         this.prepararTorre();
@@ -300,31 +295,18 @@ export class Fase2Stage extends FaseBase {
         this.botaoAntes = apertado;
     }
 
-    // Conserto passivo: sem dano há REGENERACAO.semDano s, a torre recupera
-    // REGENERACAO.quantidade de vida a cada REGENERACAO.intervalo s.
+    // O anel de luz do conserto vai se apagando
     atualizarConserto(s) {
-        this.desdeODano += s;
         this.brilhoDoConserto = Math.max(0, this.brilhoDoConserto - s / 1.4);
-        if (!this.consertando) {
-            this.proximoConserto = REGENERACAO.intervalo;
-            return;
-        }
-        this.proximoConserto -= s;
-        if (this.proximoConserto <= 0) {
-            this.proximoConserto += REGENERACAO.intervalo;
-            partida.vidaTorre = Math.min(partida.vidaTorreMax, partida.vidaTorre + REGENERACAO.quantidade);
-            this.brilhoDoConserto = 1;
-        }
     }
 
-    // true enquanto a torre se conserta sozinha
-    get consertando() {
-        return (
-            !this.apagou &&
-            this.desdeODano >= REGENERACAO.semDano &&
-            partida.vidaTorre > 0 &&
-            partida.vidaTorre < partida.vidaTorreMax
-        );
+    curarPorChefe() {
+        if (this.apagou || partida.vidaTorre <= 0) {
+            return;
+        }
+        partida.vidaTorre = Math.min(partida.vidaTorreMax, partida.vidaTorre + partida.vidaTorreMax * MINI_CHEFE.cura);
+        this.brilhoDoConserto = 1;
+        efeito("conserto");
     }
 
     // HUD comum e, por cima, a barra de vida do Kraken.
@@ -389,7 +371,6 @@ export class Fase2Stage extends FaseBase {
         if (this.apagou) {
             return;
         }
-        this.desdeODano = 0;
         if (partida.invencivel) {
             this.hud?.piscarDano();
             return;
