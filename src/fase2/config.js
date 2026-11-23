@@ -144,7 +144,8 @@ export const MONSTROS = {
         fps: 10,
     },
     serpente: {
-        vida: 3,
+        // era 3
+        vida: 2,
         // velocidade ao longo do círculo (px/s)
         velocidade: 44,
         raio: 11,
