@@ -50,7 +50,9 @@ const BATER = 0.3;
 const TREMOR = 4;
 const TREMOR_MS = 260;
 // inclinação máxima da linha de base em relação à horizontal (graus)
-const INCLINACAO = 30;
+const INCLINACAO = 20;
+// vezes que o conjunto inteiro é sorteado de novo quando um tentáculo não cabe
+const RODADAS = 200;
 // direções do meio do tentáculo em volta do farol (graus): fora da cunha de
 // baixo, que a vista do Kraken corta
 const DIRECOES = [-205, 25];
@@ -186,20 +188,61 @@ function cabe(t, existentes) {
             }
         }
     }
+    // e a curva dos outros também não pode encostar na faixa deste
+    for (const outro of existentes) {
+        for (const p of outro.pontos) {
+            if (projetar(t, p.x, p.y).distancia < 2 * c.folga) {
+                return false;
+            }
+        }
+    }
     return true;
+}
+
+// Sorteia um tentáculo que caiba (até KRAKEN.tentaculos.tentativas vezes);
+// null se nenhum coube.
+function tentar(existentes) {
+    for (let i = 0; i < KRAKEN.tentaculos.tentativas; i++) {
+        const t = montarTentaculo(sortearCurva());
+        if (cabe(t, existentes)) {
+            return t;
+        }
+    }
+    return null;
 }
 
 // Sorteia um tentáculo que caiba (até KRAKEN.tentaculos.tentativas vezes;
 // depois aceita o último sorteado).
 export function gerarTentaculo(existentes) {
-    let t = null;
-    for (let i = 0; i < KRAKEN.tentaculos.tentativas; i++) {
-        t = montarTentaculo(sortearCurva());
-        if (cabe(t, existentes)) {
-            return t;
+    return (
+        tentar(existentes) ??
+        montarTentaculo(sortearCurva())
+    );
+}
+
+// Sorteia `quantidade` tentáculos que caibam juntos na vista. Com tentáculos
+// grandes o último às vezes não acha lugar: aí o conjunto todo é sorteado de
+// novo (até RODADAS vezes). Se nenhum conjunto coube, cada tentáculo aceita o
+// último sorteado, como antes.
+export function gerarConjunto(quantidade) {
+    for (let r = 0; r < RODADAS; r++) {
+        const lista = [];
+        for (let i = 0; i < quantidade; i++) {
+            const t = tentar(lista);
+            if (t === null) {
+                break;
+            }
+            lista.push(t);
+        }
+        if (lista.length === quantidade) {
+            return lista;
         }
     }
-    return t;
+    const lista = [];
+    for (let i = 0; i < quantidade; i++) {
+        lista.push(gerarTentaculo(lista));
+    }
+    return lista;
 }
 
 export class Tentaculos {
@@ -214,10 +257,7 @@ export class Tentaculos {
         this.intervaloDasOndas = c.ondas.intervalo[f];
         this.esperaDaOnda = this.intervaloDasOndas;
         this.monstros = 0;
-        this.lista = [];
-        for (let i = 0; i < c.quantidade[f]; i++) {
-            this.lista.push(gerarTentaculo(this.lista));
-        }
+        this.lista = gerarConjunto(c.quantidade[f]);
         // tentáculo sendo traçado, a última posição do cursor e o relógio
         this.tracado = null;
         this.ultimo = { x: 0, y: 0 };

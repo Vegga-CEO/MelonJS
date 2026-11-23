@@ -372,14 +372,16 @@ export const KRAKEN = {
     // tentáculo que sobrou bate na torre (`dano`). Enquanto isso, o próprio
     // ataque solta ondas de monstros (`ondas`), que seguem vivos depois.
     tentaculos: {
-        quantidade: [3, 4, 5],
-        // duração do ataque (s)
-        tempo: [14, 12, 10],
+        // era 3, 4 e 5; no máximo 3, para dar para se defender da horda
+        quantidade: [2, 3, 3],
+        // duração do ataque (s); era 14, 12 e 10, agora 5 s a mais
+        tempo: [19, 17, 15],
         // cristas da senoide e a amplitude delas (px), sorteadas entre os dois
         curvas: [2, 3],
         amplitude: [10, 16],
-        // comprimento da linha de base (px); a curva sai um pouco maior
-        comprimento: [150, 200],
+        // comprimento da linha de base (px); a curva sai um pouco maior (era
+        // 150 a 200)
+        comprimento: [240, 300],
         // distância do meio do tentáculo ao centro do farol
         raioMinimo: 80,
         raioMaximo: 220,
@@ -388,8 +390,8 @@ export const KRAKEN = {
         recuoMaximo: 6,
         // raio do círculo de partida, espessura do corpo e distância entre
         // as setinhas do sentido (px)
-        partidaRaio: 8,
-        espessura: 6,
+        partidaRaio: 11,
+        espessura: 8,
         seta: 24,
         // surgimento e queima (s)
         surgir: 0.5,
