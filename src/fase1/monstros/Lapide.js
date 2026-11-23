@@ -7,8 +7,10 @@ import { Zumbi } from "./Zumbi.js";
 
 // Lápide: o diretor (Diretor.surgirLapide)
 // a faz brotar num ponto "lapide" do mapa. Ela sobe da areia com poeira, e a
-// cada LAPIDE.zumbiACada s solta um zumbi ao pé dela, se tem menos de
-// LAPIDE.zumbisPorLapide vivos dela (zumbi.lapide === esta). Leva luz da
+// cada LAPIDE.zumbiACada s solta um zumbi ao pé dela, até
+// LAPIDE.zumbisPorLapide vivos dela (zumbi.lapide === esta). No limite, a
+// contagem para: o próximo só sai LAPIDE.zumbiACada s depois de um deles
+// morrer, e o jogador tem esse tempo para chegar até ela. Leva luz da
 // lanterna como os monstros (tremendo de leve); com a vida em 0 mostra o
 // quadro rachado por LAPIDE.rachar s e vira fumaça. Os zumbis dela ficam.
 // Não fere por contato e não tem corpo: o jogador passa por ela.
@@ -130,11 +132,16 @@ export class Lapide {
                 this.tempoDoEstado = 0;
             }
         } else if (this.estado === "inteira") {
-            this.esperaDoZumbi -= dt;
-            if (this.esperaDoZumbi <= 0) {
+            if (this.zumbisVivos(diretor) >= LAPIDE.zumbisPorLapide) {
+                // no limite: a contagem recomeça quando um deles morrer
                 this.esperaDoZumbi = LAPIDE.zumbiACada;
-                if (diretor.ativo && this.zumbisVivos(diretor) < LAPIDE.zumbisPorLapide) {
-                    diretor.adicionar(new Zumbi(this.mapa, this.pos.x, this.pos.y, this));
+                } else {
+                this.esperaDoZumbi -= dt;
+                if (this.esperaDoZumbi <= 0) {
+                    this.esperaDoZumbi = LAPIDE.zumbiACada;
+                    if (diretor.ativo) {
+                        diretor.adicionar(new Zumbi(this.mapa, this.pos.x, this.pos.y, this));
+                    }
                 }
             }
         } else if (this.estado === "rachando" && this.tempoDoEstado >= LAPIDE.rachar) {
