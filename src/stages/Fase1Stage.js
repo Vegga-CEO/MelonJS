@@ -439,6 +439,13 @@ export class Fase1Stage extends FaseBase {
             this.itens.surgirPeca(peca);
         }
         if (minutos === minutosDe(23)) {
+            // sem as 4 peças a torre não fica pronta: a noite acaba aqui, antes
+            // do Holandês (depois das 22h50 nenhuma peça nova aparece)
+            if (partida.pecas < PECAS.horas.length) {
+                relogio.parar();
+                perder("A torre não ficou pronta");
+                return;
+            }
             this.entrarNaEtapa("holandes");
             this.encerrarNoite();
         } else if (minutos >= minutosDe(0)) {
