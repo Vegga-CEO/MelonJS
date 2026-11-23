@@ -14,12 +14,12 @@ O farol da ilha quebrou e a noite caiu. O faroleiro precisa juntar as peças da 
 
 ### Objetivos
 
-A partida dura cerca de 15 minutos e tem duas fases. Cada uma termina com um chefe.
+A partida dura cerca de 12 minutos e tem duas fases. Cada uma termina com um chefe.
 
-- **Fase 1, a ilha (18h às 0h).** Plataforma vista de lado. O jogador anda pela ilha com uma lanterna que dá dano nos monstros e tem bateria limitada, que ele recarrega na porta da casa. Às 19h, 20h, 21h e 22h aparece uma peça da torre na praia, e os mini-chefes derrubam baús com melhorias. Às 23h o Holandês Voador surge no mar, e o jogador precisa apagar as três lanternas verdes do navio para vencer.
-- **Fase 2, o farol (0h às 6h).** Visão de cima. O jogador aponta o facho do farol com o mouse e dispara contra morcegos, piranhas e serpentes, e a energia dos monstros derrotados rende melhorias. Às 5h o Kraken sobe do mar, e o jogador precisa acertar os olhos dele, passar pelas aberturas dos anéis e traçar os tentáculos com o mouse.
+- **Fase 1, a ilha (18h às 23h).** Plataforma vista de lado. O jogador anda pela ilha com uma lanterna que dá dano nos monstros e tem bateria limitada, que ele recarrega na porta da casa. Às 18h30, 19h30, 20h30 e 21h aparece uma peça da torre na praia, e cada peça afunda 50 minutos de jogo depois de surgir se ninguém a pegar. As quatro peças são obrigatórias: às 22h, quem não tiver as quatro perde com a mensagem "A torre não ficou pronta", antes de o Holandês aparecer. Os mini-chefes derrubam baús com melhorias, e cada peça pega na praia também rende cartas de melhoria da lanterna (Bateria maior e Luz forte). Às 22h o Holandês Voador surge no mar, e o jogador tem até as 23h para apagar as três lanternas verdes do navio e vencer.
+- **Fase 2, o farol (0h às 6h).** Visão de cima. Cada hora de jogo dura 36 segundos, e não 60, de 0h até as 5h. O jogador aponta o facho do farol com o mouse e dispara contra morcegos, piranhas e serpentes, e a energia dos monstros derrotados rende melhorias. Depois de escolher quatro melhorias, o jogador enfrenta mais monstros. Às 5h o Kraken sobe do mar, e o jogador precisa acertar os olhos dele, passar pelas aberturas dos anéis e queimar os tentáculos arrastando o mouse, com o botão esquerdo apertado, em linha reta, do círculo de partida até a ponta de cada um. Nenhum monstro nasce durante esse trecho, e o cardume de piranhas do Kraken é bem maior.
 
-O jogador vence quando o sol nasce com o Kraken derrotado. Perde se os corações acabarem, se o Holandês escapar às 0h, se a torre ficar sem vida ou se der 6h com o Kraken vivo.
+O jogador vence quando o sol nasce com o Kraken derrotado. Perde se os corações acabarem, se der 22h sem as quatro peças da torre, se o Holandês escapar às 23h, se a torre ficar sem vida ou se der 6h com o Kraken vivo.
 
 ![Fase 1: a ilha](capturas/02-fase1.png)
 
@@ -39,6 +39,7 @@ O jogador vence quando o sol nasce com o Kraken derrotado. Perde se os coraçõe
 | 1 | E na porta da casa | recarregar a bateria |
 | 2 | Mouse | apontar o facho |
 | 2 | Botão esquerdo ou Espaço | disparar a luz |
+| 2 | Botão esquerdo apertado e arrastar | queimar um tentáculo do Kraken, do círculo até a ponta |
 | 1 e 2 | 1, 2 e 3 | escolher uma carta de melhoria |
 | 1 e 2 | Esc | pausar |
 
