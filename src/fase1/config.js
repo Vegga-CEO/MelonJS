@@ -290,10 +290,11 @@ export const MONSTROS = {
     // zumbi (src/fase1/monstros/Zumbi.js): só nasce das lápides (LAPIDE),
     // persegue o jogador pelo chão e pula os degraus como o caranguejo
     zumbi: {
-        // era 25
-        vida: 17,
-        // fração da velocidade do jogador (FASE1.jogador.velocidade)
-        velocidade: 0.45,
+        // era 17
+        vida: 14,
+        // fração da velocidade do jogador (FASE1.jogador.velocidade); era
+        // 0.45, agora metade
+        velocidade: 0.225,
         dano: 1,
         // caixa de colisão (os pés na base)
         largura: 12,
@@ -313,8 +314,8 @@ export const MONSTROS = {
         // 1: qualquer toque de luz mata (Vampiro.levarLuz)
         vida: 1,
         // fração da velocidade do jogador (FASE1.jogador.velocidade); era
-        // 0.9, quase a do jogador: agora dá para fugir dele andando
-        velocidade: 0.7,
+        // 0.7, agora 25% mais rápido
+        velocidade: 0.875,
         // dano do dash; encostar fora do dash tira danoDeContato
         dano: 2,
         danoDeContato: 1,
@@ -409,10 +410,10 @@ export const BAU = {
     // cartas que o baú dá a escolher (src/fase1/cartasDoBau.js), cada uma
     // até `maximo` vezes na partida: Bateria maior soma `passo` s à bateria
     // máxima (12 → 16 → 20) e enche; Luz forte soma `fator` ao dano por
-    // segundo da lanterna (10 → 13 → 16)
+    // segundo da lanterna (10 → 14 → 18; era 0,3)
     cartas: {
         bateria: { passo: 4, maximo: 2 },
-        dano: { fator: 0.3, maximo: 2 },
+        dano: { fator: 0.4, maximo: 2 },
     },
 };
 
@@ -420,10 +421,11 @@ export const BAU = {
 // `intervalo` s (sorteado) uma lápide brota num ponto "lapide" do mapa fora da
 // vista, até `maximo` vivas. A cada `zumbiACada` s solta um zumbi, até
 // `zumbisPorLapide` vivos dela; no limite, o próximo só sai `zumbiACada` s
-// depois de um deles morrer. Vida em dano de luz (20 = 2 s de luz). Não
-// fere por contato nem bloqueia o caminho.
+// depois de um deles morrer. Vida em dano de luz (1 = qualquer toque de luz
+// a racha). Não fere por contato nem bloqueia o caminho.
 export const LAPIDE = {
-    vida: 20,
+    // era 20
+    vida: 1,
     intervalo: [80, 100],
     maximo: 2,
     desde: minutosDe(20),
@@ -454,7 +456,7 @@ const ONDA_DE_VAMPIROS = { intervalo: MONSTROS.vampiro.intervalo, maximo: MONSTR
 // intervalo 10% maior (arredondado em 1 casa) que na versão sem ele.
 export const DIRETOR = {
     tabela: [
-        { desde: minutosDe(18, 30), caranguejo: { intervalo: [8, 11], maximo: 2 }, alma: null, lapide: null, vampiro: null },
+        { desde: minutosDe(18, 15), caranguejo: { intervalo: [8, 11], maximo: 2 }, alma: null, lapide: null, vampiro: null },
         { desde: minutosDe(19), caranguejo: { intervalo: [6.5, 9], maximo: 3 }, alma: null, lapide: null, vampiro: null },
         { desde: LAPIDE.desde, caranguejo: { intervalo: [5.5, 7.5], maximo: 4 }, alma: { intervalo: [8, 11], maximo: 2 }, lapide: ONDA_DE_LAPIDES, vampiro: null },
         { desde: MONSTROS.vampiro.desde, caranguejo: { intervalo: [5, 7.2], maximo: 4 }, alma: { intervalo: [7.2, 9.9], maximo: 2 }, lapide: ONDA_DE_LAPIDES, vampiro: ONDA_DE_VAMPIROS },
@@ -491,8 +493,8 @@ export const HOLANDES = {
         { x: 100, y: 14 },
         { x: 150, y: 34 },
     ],
-    // vida de cada lanterna em dano de luz (10 por segundo: 4,5 s de luz)
-    vidaDaLanterna: 45,
+    // vida de cada lanterna em dano de luz (10 por segundo: 9 s de luz; era 45)
+    vidaDaLanterna: 90,
     // ao apagar uma lanterna a bateria enche (como o baú do mini-chefe)
     encherBateriaAoApagar: true,
     // opacidade do navio fantasma depois de chegar
