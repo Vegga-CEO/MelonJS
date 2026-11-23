@@ -11,7 +11,9 @@ import { iniciarEntrada } from "./ui/entrada.js";
 
 const app = new Application(CONFIG.largura, CONFIG.altura, {
     parent: "screen",
+    // preenche a janela inteira, sem faixa preta (janela ou tela cheia)
     scale: "auto",
+    scaleMethod: "stretch",
     backgroundColor: "#05070d",
 });
 

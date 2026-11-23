@@ -1,9 +1,14 @@
 import { MUSICAS } from "./musicas.js";
 import { salvarVolumeEfeitos, salvarVolumeMusica, volumeEfeitos, volumeMusica } from "./opcoes.js";
+import { MUSICA_DA_PAUSA, TRILHA_DA_MUSICA, TRILHAS } from "./trilhas.js";
 
-// Música e efeitos gerados por WebAudio, sem arquivos de áudio. É um sintetizador chiptune pequeno: ondas de
+// Efeitos e músicas de reserva gerados por WebAudio. É um sintetizador chiptune pequeno: ondas de
 // pulso (12,5%, 25% e 50%), triângulo e ruído, tocadas por um sequenciador
 // com as partituras de src/systems/musicas.js.
+//
+// As músicas do menu e das fases tocam de trilhas gravadas (arquivos em
+// public/data/audio/, escolhidas em src/systems/trilhas.js). A sintetizada
+// toca no lugar de uma trilha só se o arquivo não carregar, e na pausa.
 //
 // O contexto de áudio só nasce no primeiro clique ou tecla (regra dos
 // navegadores). Antes disso, tocarMusica só guarda o pedido e efeito não faz
@@ -226,9 +231,15 @@ let ruido = null;
 const ondas = {};
 let emPausa = false;
 
-// faixa tocando agora e o nome pedido (mesmo antes do contexto existir)
+// faixa sintetizada tocando agora e o nome pedido (mesmo antes do contexto existir)
 let faixaAtual = null;
 let musicaPedida = null;
+// nome da música em curso (o último tocarMusica) e a trilha gravada dela, se
+// tiver: { id, buffer, fonte, ganho, inicio, offset }
+let musicaNome = null;
+let trilha = null;
+// buffers já decodificados (ou em decodificação) de cada trilha
+const buffersDasTrilhas = new Map();
 let agenda = null;
 // faixas saindo (fade): continuam soando até o fim do fade
 const faixasSaindo = new Set();
@@ -260,7 +271,7 @@ function criarContexto() {
 
     filtroPausa = ctx.createBiquadFilter();
     filtroPausa.type = "lowpass";
-    filtroPausa.frequency.value = emPausa ? PAUSA_CORTE : SEM_CORTE;
+    filtroPausa.frequency.value = abafarNaPausa() ? PAUSA_CORTE : SEM_CORTE;
     filtroPausa.Q.value = 0.7;
     filtroPausa.connect(compressor);
 
@@ -284,8 +295,14 @@ function criarContexto() {
     return true;
 }
 
+// Na pausa a música sintetizada fica abafada e mais baixa. Quando a música em
+// curso é uma trilha, a pausa troca de música (toca a da pausa), sem abafar.
+function abafarNaPausa() {
+    return emPausa && !Object.hasOwn(TRILHA_DA_MUSICA, musicaNome);
+}
+
 function alvoDaMusica() {
-    return curva(volumeMusica()) * (emPausa ? PAUSA_VOLUME : 1);
+    return curva(volumeMusica()) * (abafarNaPausa() ? PAUSA_VOLUME : 1);
 }
 
 // Primeiro gesto: cria o contexto; depois, acorda se o navegador suspendeu.
@@ -576,6 +593,68 @@ function soltarFaixa(faixa) {
 }
 
 // ---------------------------------------------------------------------------
+// Trilhas gravadas
+
+const urlDaTrilha = (id) => `${import.meta.env.BASE_URL}${TRILHAS[id].arquivo}`;
+
+// Baixa e decodifica a trilha uma vez; as próximas chamadas reaproveitam.
+// Se falhar, esquece o resultado para tentar de novo no próximo pedido.
+function carregarTrilha(id) {
+    let promessa = buffersDasTrilhas.get(id);
+    if (promessa === undefined) {
+        promessa = fetch(urlDaTrilha(id))
+            .then((resposta) => {
+                if (!resposta.ok) {
+                    throw new Error(`HTTP ${resposta.status}`);
+                }
+                return resposta.arrayBuffer();
+            })
+            .then((bytes) => ctx.decodeAudioData(bytes));
+        promessa.catch(() => buffersDasTrilhas.delete(id));
+        buffersDasTrilhas.set(id, promessa);
+    }
+    return promessa;
+}
+
+// Liga a trilha a partir do ponto offset (s), em laço e com fade de entrada.
+function iniciarTrilha(t, offset) {
+    const agora = ctx.currentTime;
+    const fonte = ctx.createBufferSource();
+    fonte.buffer = t.buffer;
+    fonte.loop = true;
+    const ganho = ctx.createGain();
+    ganho.gain.setValueAtTime(0, agora);
+    ganho.gain.linearRampToValueAtTime(TRILHAS[t.id].volume, agora + FADE_MUSICA);
+    fonte.connect(ganho);
+    ganho.connect(barramentoMusica);
+    fonte.start(0, offset % t.buffer.duration);
+    t.fonte = fonte;
+    t.ganho = ganho;
+    t.inicio = agora - offset;
+}
+
+// Tira a trilha com fade e guarda onde ela parou (t.offset), para a pausa
+// poder devolvê-la do mesmo ponto.
+function soltarTrilha(t, fade = FADE_MUSICA) {
+    if (t.fonte === null) {
+        return;
+    }
+    const agora = ctx.currentTime;
+    t.offset = (agora - t.inicio) % t.buffer.duration;
+    t.ganho.gain.cancelScheduledValues(agora);
+    t.ganho.gain.setValueAtTime(t.ganho.gain.value, agora);
+    t.ganho.gain.linearRampToValueAtTime(0, agora + fade);
+    const { fonte, ganho } = t;
+    fonte.stop(agora + fade + 0.05);
+    fonte.onended = () => {
+        fonte.disconnect();
+        ganho.disconnect();
+    };
+    t.fonte = null;
+    t.ganho = null;
+}
+
+// ---------------------------------------------------------------------------
 // Efeitos (nome → função que toca em t no barramento dos efeitos)
 
 const variar = (valor, fracao) => valor * (1 + (Math.random() * 2 - 1) * fracao);
@@ -753,18 +832,8 @@ const EFEITOS = {
 // ---------------------------------------------------------------------------
 // API
 
-// Troca a música com fade de 0,5 s; o mesmo nome não reinicia.
-export function tocarMusica(nome) {
-    if (!Object.hasOwn(MUSICAS, nome)) {
-        throw new Error(`som: música desconhecida "${nome}"`);
-    }
-    if (ctx === null) {
-        musicaPedida = nome;
-        return;
-    }
-    if (faixaAtual !== null && faixaAtual.nome === nome) {
-        return;
-    }
+// Toca a sintetizada `nome`, tirando a que estava (com fade).
+function tocarSintetizada(nome) {
     if (faixaAtual !== null) {
         soltarFaixa(faixaAtual);
     }
@@ -772,30 +841,125 @@ export function tocarMusica(nome) {
     ligarAgenda();
 }
 
+// Troca a música com fade de 0,5 s; o mesmo nome não reinicia, e nomes
+// seguidos com a mesma trilha (menu → Fase 1) seguem sem cortar.
+export function tocarMusica(nome) {
+    if (!Object.hasOwn(MUSICAS, nome)) {
+        throw new Error(`som: música desconhecida "${nome}"`);
+    }
+    musicaNome = nome;
+    if (ctx === null) {
+        musicaPedida = nome;
+        return;
+    }
+    const id = Object.hasOwn(TRILHA_DA_MUSICA, nome) ? TRILHA_DA_MUSICA[nome] : null;
+
+    if (id === null) {
+        if (trilha !== null) {
+            soltarTrilha(trilha);
+            trilha = null;
+        }
+        if (faixaAtual !== null && faixaAtual.nome === nome && !faixaAtual.pausa) {
+            return;
+        }
+        tocarSintetizada(nome);
+        return;
+    }
+
+    if (trilha !== null && trilha.id === id) {
+        return;
+    }
+    if (trilha !== null) {
+        soltarTrilha(trilha);
+    }
+    if (faixaAtual !== null) {
+        soltarFaixa(faixaAtual);
+        faixaAtual = null;
+    }
+    const nova = { id, buffer: null, fonte: null, ganho: null, inicio: 0, offset: 0 };
+    trilha = nova;
+    carregarTrilha(id).then(
+        (buffer) => {
+            if (trilha !== nova) {
+                return;
+            }
+            nova.buffer = buffer;
+            // em pausa, a trilha espera: modoPausa(false) a liga
+            if (!emPausa) {
+                iniciarTrilha(nova, 0);
+            }
+        },
+        (erro) => {
+            console.warn(`som: a trilha "${id}" não carregou (${erro.message}); toca a sintetizada`);
+            if (trilha !== nova) {
+                return;
+            }
+            trilha = null;
+            if (!emPausa) {
+                tocarSintetizada(nome);
+            }
+        },
+    );
+}
+
 // Para a música atual com fade.
 export function pararMusica() {
     musicaPedida = null;
-    if (ctx !== null && faixaAtual !== null) {
-        soltarFaixa(faixaAtual);
+    musicaNome = null;
+    if (ctx !== null) {
+        if (trilha !== null) {
+            soltarTrilha(trilha);
+        }
+        if (faixaAtual !== null) {
+            soltarFaixa(faixaAtual);
+        }
     }
+    trilha = null;
     faixaAtual = null;
 }
 
 // Nome da música tocando (ou pedida antes do primeiro gesto), ou null.
 export function musicaAtual() {
-    return faixaAtual?.nome ?? musicaPedida;
+    return musicaNome;
 }
 
-// Pausa: a música fica abafada (passa-baixa) e mais baixa.
+// Pausa. Com uma trilha tocando, ela sai (guardando o ponto) e entra a
+// música sintetizada da pausa; ao despausar, a trilha volta do mesmo ponto.
+// Sem trilha, a música sintetizada só fica abafada (passa-baixa) e mais baixa.
 export function modoPausa(ligado) {
-    emPausa = Boolean(ligado);
+    const novo = Boolean(ligado);
+    const mudou = novo !== emPausa;
+    emPausa = novo;
     if (ctx === null) {
         return;
     }
     const agora = ctx.currentTime;
     filtroPausa.frequency.cancelScheduledValues(agora);
-    filtroPausa.frequency.setTargetAtTime(emPausa ? PAUSA_CORTE : SEM_CORTE, agora, 0.12);
+    filtroPausa.frequency.setTargetAtTime(abafarNaPausa() ? PAUSA_CORTE : SEM_CORTE, agora, 0.12);
     barramentoMusica.gain.setTargetAtTime(alvoDaMusica(), agora, 0.12);
+    if (!mudou) {
+        return;
+    }
+    if (emPausa) {
+        if (trilha !== null) {
+            soltarTrilha(trilha, 0.15);
+            tocarSintetizada(MUSICA_DA_PAUSA);
+            faixaAtual.pausa = true;
+        }
+        return;
+    }
+    if (faixaAtual?.pausa) {
+        soltarFaixa(faixaAtual);
+        faixaAtual = null;
+        // a trilha não carregou durante a pausa: volta a sintetizada da música
+        if (trilha === null && musicaNome !== null) {
+            tocarSintetizada(musicaNome);
+        }
+    }
+    // se a trilha ainda estava carregando, quem a liga é o carregamento
+    if (trilha !== null && trilha.buffer !== null && trilha.fonte === null) {
+        iniciarTrilha(trilha, trilha.offset);
+    }
 }
 
 // Toca um efeito curto (lista em EFEITOS).
