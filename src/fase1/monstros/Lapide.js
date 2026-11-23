@@ -100,7 +100,7 @@ export class Lapide {
         efeito("disparo");
     }
 
-    // Some com fumaça (a limpeza das 23h, no escuro: fumaça por cima dele).
+    // Some com fumaça (a limpeza das 22h, no escuro: fumaça por cima dele).
     sumir() {
         if (this.removida) {
             return;

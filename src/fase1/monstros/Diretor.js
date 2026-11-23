@@ -21,7 +21,7 @@ import { Vampiro } from "./Vampiro.js";
 // do mini-chefe morto (fase.itens.soltarBau), as lápides que soltam zumbis
 // (Lapide.js, nos pontos "lapide" fora da vista, das 20h em diante), o
 // vampiro (Vampiro.js, num ponto de chão fora da vista, das 21h em diante,
-// um vivo por vez) e a limpeza das 23h (limpar).
+// um vivo por vez) e a limpeza das 22h (limpar).
 //
 // Desenho: CamadaMonstros (um Renderable no mundo, z entre 10 e 12) desenha
 // os comuns embaixo da escuridão e, por cima dela, só os olhos deles (no
@@ -312,7 +312,7 @@ export class Diretor {
         }
     }
 
-    // Todos somem com fumaça (23h), as lápides também.
+    // Todos somem com fumaça (22h), as lápides também.
     limpar() {
         for (const m of this.lista) {
             m.sumir();

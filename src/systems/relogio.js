@@ -6,7 +6,7 @@ import { CONFIG } from "../config.js";
 // O tempo é contado em "minutos da noite": 18h = 1080 e cada hora soma 60,
 // sem voltar a zero na meia-noite, então 0h = 1440 e 6h = 1800. Assim
 // comparar horas é só comparar números. Use minutosDe(h, m) para converter
-// uma hora do relógio (minutosDe(23) = 1380, minutosDe(5) = 1740).
+// uma hora do relógio (minutosDe(22) = 1320, minutosDe(5) = 1740).
 //
 // O relógio só anda em atualizar(dt), que a Stage chama todo quadro; ele
 // para sozinho com a pausa do MelonJS (state.pause) e com parar().
@@ -26,8 +26,9 @@ export function minutosDe(hora, minuto = 0) {
 }
 
 // horas dos chefes, mais lentas: [início, fim) em minutos da noite
+// (Holandês das 22h às 23h, Kraken das 5h às 6h)
 const HORAS_DE_CHEFE = [
-    [minutosDe(23), minutosDe(0)],
+    [minutosDe(22), minutosDe(23)],
     [minutosDe(5), minutosDe(6)],
 ];
 

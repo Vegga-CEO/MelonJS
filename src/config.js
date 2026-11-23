@@ -19,7 +19,7 @@ export const CONFIG = {
     tile: 16,
     // segundos reais por hora de jogo fora dos chefes
     segundosPorHora: 60,
-    // segundos reais por hora de jogo na hora dos chefes (23h e 5h)
+    // segundos reais por hora de jogo na hora dos chefes (22h e 5h)
     segundosHoraChefe: 150,
     // modo de teste: teclas 0 a 6 (src/systems/depuracao.js)
     debug: lerDebug(),

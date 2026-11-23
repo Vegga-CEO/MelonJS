@@ -5,7 +5,7 @@ import { registrarBrilho, removerBrilho } from "../../systems/brilhos.js";
 import { partida } from "../../systems/partida.js";
 import { efeito } from "../../systems/som.js";
 import { desenharIcone, ICONE } from "../../ui/Hud.js";
-import { PECAS } from "../config.js";
+import { HOLANDES, PECAS } from "../config.js";
 import { coresDoJogoFase1 } from "../cores.js";
 import { sobrepoe } from "../fisica.js";
 import { lerVista } from "../vista.js";
@@ -19,8 +19,9 @@ import { Peca } from "./Peca.js";
 // indicador na borda apontando para cada peça fora da vista.
 //
 // Pegar chama fase.coletarPeca(icone, { x, y }) (Fase1Stage), que toca a
-// cena da torre ou dá o bônus. A peça de um baú, depois disso (no fim da
-// cena), chama fase.abrirCartasDoBau() para a escolha da carta.
+// cena da torre ou dá o bônus. A peça da praia e a de um baú, depois disso
+// (no fim da cena), chamam fase.abrirCartasDoBau() para a escolha da carta;
+// a lente do Holandês (também uma Peca) não.
 //
 // API para a fase e o Holandês (tarefa 9):
 //   itens.surgirPeca(indice)          a peça da hora (0 a 3), no ponto da vez
@@ -82,7 +83,13 @@ export class Itens {
             peca.atualizar(dt);
             if (caixaDoJogador !== null && peca.pegavel && sobrepoe(peca.caixa(), caixaDoJogador)) {
                 peca.removida = true;
-                this.fase.coletarPeca(peca.icone, peca.posicao());
+                const fase = this.fase;
+                const cena = fase.coletarPeca(peca.icone, peca.posicao());
+                // a peça da praia também dá as cartas, depois da cena da torre
+                // (ou já, no bônus); a lente do Holandês não
+                if (peca.icone !== HOLANDES.lente.icone) {
+                    Promise.resolve(cena).then(() => fase.abrirCartasDoBau());
+                }
                 // a cena pausa os itens: o resto fica para depois dela
                 this.tirarRemovidos();
                 return;
