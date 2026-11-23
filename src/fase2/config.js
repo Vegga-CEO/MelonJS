@@ -94,8 +94,8 @@ export const MONSTROS = {
         vida: 1,
         velocidade: 72,
         raio: 9,
-        // era 4
-        dano: 2.4,
+        // era 2,4 (e antes 4)
+        dano: 5,
         // zigue-zague: amplitude (px) e frequência (rad/s) do desvio de lado
         zigueAmplitude: 16,
         zigueFrequencia: 4.2,
@@ -110,8 +110,8 @@ export const MONSTROS = {
         vida: 1,
         velocidade: 48,
         raio: 8,
-        // era 3
-        dano: 1.8,
+        // era 1,8 (e antes 3)
+        dano: 4,
         // tamanho do grupo por hora (0h a 4h): [mínimo, máximo]
         grupo: [
             [3, 3],
@@ -149,8 +149,8 @@ export const MONSTROS = {
         // velocidade ao longo do círculo (px/s)
         velocidade: 44,
         raio: 11,
-        // era 5
-        dano: 3,
+        // era 3 (e antes 5)
+        dano: 6,
         // a cada quantos segundos morde a torre quando chega
         mordida: 1.6,
         // escala inicial da elipse da ilha onde nasce e quanto ela fecha por segundo
@@ -170,7 +170,8 @@ export const MINI_CHEFE = {
     escala: 2,
     vida: 8,
     velocidade: 0.55,
-    // vezes o dano do comum: 4, 3 e 5 por mordida (eram 8, 6 e 10)
+    // vezes o dano do comum: com o dano atual dos comuns (5, 4 e 6), cada
+    // mordida do mini-chefe tira cerca de 8,3 (morcego), 6,7 (piranha) e 10 (serpente)
     dano: 5 / 3,
     mordida: 1.8,
     // vida da torre que volta ao matar um mini-chefe (fralção da vida máxima)
@@ -251,6 +252,13 @@ export const ONDAS = [
 ];
 // espera antes do primeiro monstro da fase
 export const PRIMEIRA_ONDA = 1.5;
+
+// Depois que o jogador escolheu `quantas` melhorias no total (soma dos níveis
+// em partida.melhorias), o diretor de ondas aperta: o intervalo de cada linha
+// de ONDAS é multiplicado por `intervalo` (0,75 = ondas 25% mais rápidas) e o
+// máximo de monstros vivos por `maximo` (arredondado para cima). Só vale
+// enquanto o diretor está ativo (às 5h o Kraken o desliga).
+export const DEPOIS_DAS_MELHORIAS = { quantas: 4, intervalo: 0.75, maximo: 1.3 };
 
 // Mar vivo e vaga-lumes (só desenho).
 export const MAR = {
@@ -354,7 +362,9 @@ export const KRAKEN = {
     // Cardume: ondas de piranhas em leque vindas de um lado.
     cardume: {
         ondas: [3, 4, 5],
-        porOnda: [3, 4, 4],
+        // piranhas por onda (era 3, 4 e 4: 2,5 vezes mais); o total por ataque
+        // passa a ser 24, 40 e 50
+        porOnda: [8, 10, 10],
         intervalo: [1.2, 1.0, 0.85],
         // ângulo entre duas ondas do leque
         leque: 32,
@@ -365,22 +375,22 @@ export const KRAKEN = {
     },
 
     // Tentáculos (minigame): `quantidade` tentáculos deitados em volta do
-    // farol, cada um uma curva senoidal. Com o botão apertado dentro do
-    // círculo de partida, o jogador segue a curva até a ponta e o tentáculo
-    // queima. Sair da faixa (`folga` px da curva), recuar mais de
+    // farol, cada um uma linha reta. Com o botão apertado dentro do
+    // círculo de partida, o jogador segue a linha até a ponta e o tentáculo
+    // queima. Sair da faixa (`folga` px da linha), recuar mais de
     // `recuoMaximo` px ou soltar o botão zera o traço. Em `tempo` s, cada
-    // tentáculo que sobrou bate na torre (`dano`). Enquanto isso, o próprio
-    // ataque solta ondas de monstros (`ondas`), que seguem vivos depois.
+    // tentáculo que sobrou bate na torre (`dano`). Nenhum monstro nasce
+    // enquanto os tentáculos estão ativos.
     tentaculos: {
         // era 3, 4 e 5; no máximo 3, para dar para se defender da horda
         quantidade: [2, 3, 3],
         // duração do ataque (s); era 14, 12 e 10, agora 5 s a mais
         tempo: [19, 17, 15],
-        // cristas da senoide e a amplitude delas (px), sorteadas entre os dois
+        // cristas e amplitude (px) da senoide sobre a linha, sorteadas entre
+        // os dois; amplitude 0 deixa o tentáculo reto (era [10, 16])
         curvas: [2, 3],
-        amplitude: [10, 16],
-        // comprimento da linha de base (px); a curva sai um pouco maior (era
-        // 150 a 200)
+        amplitude: [0, 0],
+        // comprimento da linha (px; era 150 a 200)
         comprimento: [240, 300],
         // distância do meio do tentáculo ao centro do farol
         raioMinimo: 80,
@@ -397,16 +407,6 @@ export const KRAKEN = {
         surgir: 0.5,
         queimar: 0.4,
         dano: 5,
-        // ondas de pressão durante o ataque: a cada `intervalo[fúria]` s, um
-        // morcego ou um grupo de `piranhas` piranhas vindo de uma das
-        // `direcoes` (graus, o mar visível na vista do Kraken) com até
-        // `variacao` graus para cada lado
-        ondas: {
-            intervalo: [1.6, 1.3, 1.0],
-            piranhas: 2,
-            direcoes: [180, 0, -150, -30],
-            variacao: 15,
-        },
         // sorteios por tentáculo até caber; depois aceita o último
         tentativas: 30,
     },

@@ -5,7 +5,7 @@ import { emitirEstrelinhas, emitirFaiscas } from "../../systems/particulas.js";
 import { partida } from "../../systems/partida.js";
 import { relogio } from "../../systems/relogio.js";
 import { efeito } from "../../systems/som.js";
-import { ENGRENAGEM, FAROL, MINI_CHEFE, MONSTROS, ONDAS, PRIMEIRA_ONDA } from "../config.js";
+import { DEPOIS_DAS_MELHORIAS, ENGRENAGEM, FAROL, MINI_CHEFE, MONSTROS, ONDAS, PRIMEIRA_ONDA } from "../config.js";
 import { coresDaFase2 } from "../cores.js";
 import { distanciaDaCosta } from "../ilha.js";
 import { tempoDeQueima } from "../melhorias.js";
@@ -88,6 +88,23 @@ export class Diretor {
         const hora = relogio.hora();
         const i = hora >= 0 && hora < ONDAS.length ? hora : ONDAS.length - 1;
         return ONDAS[i];
+    }
+
+    // Intervalo [mínimo, máximo] e máximo de vivos da linha `onda`, já com o
+    // aperto de DEPOIS_DAS_MELHORIAS quando o jogador somou melhorias demais.
+    ondaEfetiva(onda) {
+        let escolhidas = 0;
+        for (const id in partida.melhorias) {
+            escolhidas += partida.melhorias[id];
+        }
+        if (escolhidas < DEPOIS_DAS_MELHORIAS.quantas) {
+            return { intervalo: onda.intervalo, maximo: onda.maximo };
+        }
+        const k = DEPOIS_DAS_MELHORIAS.intervalo;
+        return {
+            intervalo: [onda.intervalo[0] * k, onda.intervalo[1] * k],
+            maximo: Math.ceil(onda.maximo * DEPOIS_DAS_MELHORIAS.maximo),
+        };
     }
 
     vivos() {
@@ -177,10 +194,14 @@ export class Diretor {
             return [];
         }
         const grupo = [];
-        const espalhar = (dados.espalhamentoAngulo * Math.PI) / 180;
+        // grupos de mais de 5 (cardume do Kraken) abrem o leque na proporção,
+        // para não nascerem empilhados
+        const abrir = Math.max(1, Math.sqrt(quantidade / 5));
+        const espalhar = (dados.espalhamentoAngulo * abrir * Math.PI) / 180;
+        const fundo = dados.espalhamentoDistancia * abrir;
         for (let i = 0; i < quantidade; i++) {
             const a = direcao + (i === 0 ? 0 : sortear(-espalhar, espalhar) / 2);
-            const d = distancia - (i === 0 ? 0 : sortear(0, dados.espalhamentoDistancia));
+            const d = distancia - (i === 0 ? 0 : sortear(0, fundo));
             const x = FAROL.x + Math.cos(a) * Math.max(d, distanciaDaCosta(a) + 16);
             const y = FAROL.y + Math.sin(a) * Math.max(d, distanciaDaCosta(a) + 16);
             const m = new Piranha({ chefe }, i * 0.14);
@@ -238,11 +259,12 @@ export class Diretor {
             this.espera -= dt;
             if (this.espera <= 0) {
                 const onda = this.onda;
-                if (this.vivos() < onda.maximo) {
+                const efetiva = this.ondaEfetiva(onda);
+                if (this.vivos() < efetiva.maximo) {
                     this.surgir(sortearPeso(onda.pesos));
                 }
                 const fator = this.temChefe() ? MINI_CHEFE.intervaloComChefe : 1;
-                this.espera = sortear(onda.intervalo[0], onda.intervalo[1]) * fator;
+                this.espera = sortear(efetiva.intervalo[0], efetiva.intervalo[1]) * fator;
             }
         }
 

@@ -5,18 +5,16 @@ import { CAMERA, FAROL, KRAKEN, TORRE } from "../config.js";
 import { coresDoKraken } from "./cores.js";
 import { brilhoRedondo, comecarPontos, ponto } from "./desenho.js";
 
-// Ataque dos tentáculos (minigame): o Kraken solta 3, 4 ou 5 tentáculos
-// (por fúria) deitados em volta do farol, cada um desenhado como uma curva
-// em zigue-zague. Com o cursor no círculo de partida e o botão esquerdo
+// Ataque dos tentáculos (minigame): o Kraken solta 2 ou 3 tentáculos
+// (por fúria) deitados em volta do farol, cada um uma linha reta (com
+// KRAKEN.tentaculos.amplitude em 0 a senoide some e o corpo desenhado é a
+// própria guia). Com o cursor no círculo de partida e o botão esquerdo
 // apertado, o jogador arrasta o mouse em linha reta, de uma ponta à outra
-// (a "guia": o segmento entre a partida e a ponta), e o tentáculo queima. A
-// arte continua ondulada, só o traço é reto. Sair da faixa (KRAKEN.tentaculos
-// .folga px da guia), recuar mais de `recuoMaximo` px ou soltar o botão zera
-// o traço daquele tentáculo. No fim do tempo, cada tentáculo que sobrou bate
-// na torre uma vez; todos queimados antes, o ataque termina na hora.
-// Enquanto o ataque dura, ele mesmo solta ondas de pressão pelo diretor da
-// fase (KRAKEN.tentaculos.ondas): um morcego ou um grupo de piranhas vindo
-// do mar visível; os monstros seguem vivos depois do ataque.
+// (a "guia": o segmento entre a partida e a ponta), e o tentáculo queima.
+// Sair da faixa (KRAKEN.tentaculos.folga px da guia), recuar mais de
+// `recuoMaximo` px ou soltar o botão zera o traço daquele tentáculo. No fim
+// do tempo, cada tentáculo que sobrou bate na torre uma vez; todos queimados
+// antes, o ataque termina na hora. Nenhum monstro nasce durante o ataque.
 //
 // A Fase2Stage repassa o botão em pixels do mundo: consomeBotao(x, y) diz
 // se o aperto é do ataque (aí o facho não dispara), e depois apertarPonteiro,
@@ -83,7 +81,8 @@ export function projetar(t, x, y) {
 }
 
 // Quanto do traço (px na guia reta) já foi feito, convertido em px da curva
-// desenhada: a brasa percorre o zigue-zague na mesma proporção.
+// desenhada: a brasa percorre a curva na mesma proporção (com amplitude 0 a
+// curva é a própria guia e o fator é 1).
 function progressoNaCurva(t) {
     return t.reto > 0 ? (t.progresso / t.reto) * t.comprimento : 0;
 }
@@ -253,10 +252,6 @@ export class Tentaculos {
         const c = KRAKEN.tentaculos;
         const f = kraken.furia;
         this.duracao = c.tempo[f];
-        // ondas de pressão: a primeira depois de um intervalo
-        this.intervaloDasOndas = c.ondas.intervalo[f];
-        this.esperaDaOnda = this.intervaloDasOndas;
-        this.monstros = 0;
         this.lista = gerarConjunto(c.quantidade[f]);
         // tentáculo sendo traçado, a última posição do cursor e o relógio
         this.tracado = null;
@@ -301,34 +296,9 @@ export class Tentaculos {
                 }
             }
         }
-        if (!this.esgotou) {
-            this.atualizarOndas(dt);
-            if (this.restante <= 0) {
-                this.esgotar();
-            }
+        if (!this.esgotou && this.restante <= 0) {
+            this.esgotar();
         }
-    }
-
-    // Uma onda de pressão a cada intervalo: um morcego numa borda da vista
-    // ou um grupo de piranhas vindo de uma direção do mar visível.
-    atualizarOndas(dt) {
-        const diretor = this.fase.diretor;
-        this.esperaDaOnda -= dt;
-        if (this.esperaDaOnda > 0 || diretor === null) {
-            return;
-        }
-        this.esperaDaOnda += this.intervaloDasOndas;
-        const o = KRAKEN.tentaculos.ondas;
-        let novos;
-        if (Math.random() < 0.5) {
-            novos = diretor.surgir("morcego");
-        } else {
-            const base = o.direcoes[Math.floor(Math.random() * o.direcoes.length)];
-            novos = diretor.surgirPiranhas(o.piranhas, (base + sortear(-o.variacao, o.variacao)) * GRAUS);
-            // como no cardume, as piranhas do chefe não circulam: avisam e saltam
-            for (const p of novos) p.circula = false;
-        }
-        this.monstros += novos.length;
     }
 
     // Tempo esgotado: cada tentáculo que sobrou bate na torre uma vez.
@@ -455,7 +425,7 @@ export class Tentaculos {
         }
     }
 
-    // O Kraken morreu: os tentáculos somem e as ondas param.
+    // O Kraken morreu: os tentáculos somem.
     encerrar() {
         this.esgotou = true;
         this.tracado = null;
