@@ -214,10 +214,12 @@ export const CENA = {
 
 // ---- monstros -----------------------------------------------------------------
 // Vida em "dano de luz": a lanterna dá FASE1.lanterna.danoPorSegundo (10)
-// por segundo, então vida 12 = 1,2 s de luz.
+// por segundo, então vida 8 = 0,8 s de luz. Os mini-chefes têm
+// MINI_CHEFE.vida vezes a vida do comum.
 export const MONSTROS = {
     caranguejo: {
-        vida: 12,
+        // era 12
+        vida: 8,
         // caixa de colisão (os pés na base)
         largura: 20,
         altura: 13,
@@ -240,7 +242,8 @@ export const MONSTROS = {
         fps: 8,
     },
     alma: {
-        vida: 8,
+        // era 8
+        vida: 5,
         largura: 14,
         altura: 14,
         // voo: velocidade, altura acima do jogador e a onda
@@ -262,7 +265,8 @@ export const MONSTROS = {
     // pirata fantasma do Holandês (etapas 2 e 3): desce do navio por uma
     // prancha de luz, anda na areia com a física e ataca com o sabre
     pirata: {
-        vida: 10,
+        // era 10
+        vida: 7,
         largura: 10,
         altura: 24,
         velocidade: 42,
@@ -286,7 +290,8 @@ export const MONSTROS = {
     // zumbi (src/fase1/monstros/Zumbi.js): só nasce das lápides (LAPIDE),
     // persegue o jogador pelo chão e pula os degraus como o caranguejo
     zumbi: {
-        vida: 25,
+        // era 25
+        vida: 17,
         // fração da velocidade do jogador (FASE1.jogador.velocidade)
         velocidade: 0.45,
         dano: 1,
