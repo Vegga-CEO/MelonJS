@@ -305,9 +305,11 @@ export const MONSTROS = {
     // persegue o jogador pelo chão e, perto dele, para com os olhos brilhando
     // e dá um dash reto. Qualquer toque de luz mata.
     vampiro: {
+        // 1: qualquer toque de luz mata (Vampiro.levarLuz)
         vida: 1,
-        // fração da velocidade do jogador (FASE1.jogador.velocidade)
-        velocidade: 0.9,
+        // fração da velocidade do jogador (FASE1.jogador.velocidade); era
+        // 0.9, quase a do jogador: agora dá para fugir dele andando
+        velocidade: 0.7,
         // dano do dash; encostar fora do dash tira danoDeContato
         dano: 2,
         danoDeContato: 1,
@@ -315,8 +317,10 @@ export const MONSTROS = {
         alcanceDoDash: 90,
         // parado com os olhos brilhando antes do dash (s)
         aviso: 0.4,
-        // dash: velocidade em vezes a do jogador, duração (s); ignora a gravidade
-        dash: { velocidade: 3, duracao: 0.3 },
+        // dash: velocidade em vezes a do jogador, duração (s); ignora a
+        // gravidade. Era 3 por 0,3 s: 20% mais lento e um pouco mais longo,
+        // com o mesmo alcance (~100 px) e mais tempo para pular de lado
+        dash: { velocidade: 2.4, duracao: 0.38 },
         // parado depois do dash (s)
         pausa: 1.2,
         // nascimento: a partir de `desde`, a cada `intervalo` s, até `maximo` vivos
