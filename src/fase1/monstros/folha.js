@@ -17,8 +17,10 @@ export const QUADROS = {
     lapide: [24, 25],
     vampiro: { parado: 32, andando: [33, 36], dash: 37, dano: 38, morte: 39 },
     // o zumbi usa outra folha, zumbi-<tema>.png (quadros de 24×24, o layout
-    // do jogador, olhando para a direita): src/fase1/monstros/Zumbi.js
-    zumbi: { parado: [0, 1], andar: [2, 3, 4, 5, 6, 7], dano: 10, morte: 11, morrendo: [11, 12, 13, 14] },
+    // do jogador, olhando para a direita): src/fase1/monstros/Zumbi.js. O
+    // dano é o quadro 15, a silhueta branca (o 10 é o tranco do faroleiro,
+    // escuro demais para piscar como os outros monstros)
+    zumbi: { parado: [0, 1], andar: [2, 3, 4, 5, 6, 7], dano: 15, morte: 11, morrendo: [11, 12, 13, 14] },
 };
 
 // Imagem da folha no tema atual.

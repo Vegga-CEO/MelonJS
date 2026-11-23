@@ -5,7 +5,8 @@
 // Arquivos (em public/data/img/, <t> = id do estilo, "mare"):
 //   jogador-<t>.png        192×48, quadros 24×24 (8 colunas), sem o braço da frente
 //   jogador-braco-<t>.png  16×8, ombro em (2, 3), boca da lanterna em (15, 3)
-//   zumbi-<t>.png          192×48, quadros 24×24, mesmo layout do jogador (sem o braço)
+//   zumbi-<t>.png          192×48, quadros 24×24, mesmo layout do jogador (sem o braço);
+//                          o quadro 15 é a silhueta branca de dano
 //   inimigos-<t>.png       256×160, quadros 32×32, olhando para a esquerda, base na linha 31
 //   navio-<t>.png          576×160, 3 quadros 192×160 (inteiro, avariado, muito avariado)
 //   itens-<t>.png          128×32, ícones 16×16
@@ -368,6 +369,7 @@ const TONS_ZUMBI = {
     c: P.madeira,
     y: P.metal, // botões foscos: nada brilha com a lanterna
     F: P.fantasma,
+    W: P.olho, // quadro de dano (branco), como o dos outros monstros
 };
 
 // cabeça careca com tufos de cabelo ralo ("d"), no mesmo lugar da do faroleiro
@@ -406,8 +408,13 @@ function rasgarCapa(q) {
     return q;
 }
 
+// Quadro 15 (vazio no faroleiro): a silhueta branca do zumbi parado, o quadro
+// de dano piscando na luz, como o caranguejo, a alma e o vampiro. O quadro 10
+// (o tranco do faroleiro) é escuro e não aparece como piscada.
 function quadrosDoZumbi() {
-    return quadrosDoJogador(CABECA_ZUMBI).map((q, i) => (i === 15 ? q : rasgarCapa(q)));
+    const q = quadrosDoJogador(CABECA_ZUMBI).map((quadro, i) => (i === 15 ? quadro : rasgarCapa(quadro)));
+    q[15] = silhueta(q[0], "W", "o");
+    return q;
 }
 
 // ===========================================================================
