@@ -2,6 +2,8 @@
 
 Jogo 2D em pixel art feito com MelonJS para o trabalho de Jogos Digitais. O jogador é o faroleiro de uma ilha e tem uma noite inteira, das 18h às 6h, para consertar o farol.
 
+**Jogue agora no navegador: https://vegga-ceo.github.io/MelonJS/**
+
 ![Menu inicial do jogo](capturas/01-menu.png)
 
 ## Descrição geral
@@ -46,7 +48,14 @@ O jogador vence quando o sol nasce com o Kraken derrotado. Perde se os coraçõe
 - [Vite](https://vite.dev/) 8, que serve o jogo no desenvolvimento e gera o build.
 - JavaScript com módulos ES.
 - Mapas no formato JSON do [Tiled](https://www.mapeditor.org/) (`.tmj`), gerados por scripts.
-- Os sons e as músicas são sintetizados por código com WebAudio, sem arquivos de áudio. A arte em pixel art é desenhada por scripts em `tools/`.
+- Os efeitos sonoros são sintetizados por código com WebAudio, sem arquivos de áudio. A trilha sonora é gravada: duas músicas originais feitas para o jogo, em `public/data/audio/`. A música sintetizada toca só na pausa e nas telas de vitória e derrota.
+- A arte em pixel art é desenhada por scripts em `tools/`.
+
+## Versão jogável
+
+O jogo roda direto no navegador, sem instalar nada, pelo GitHub Pages: **https://vegga-ceo.github.io/MelonJS/**. A página é publicada de novo a cada mudança na `main`.
+
+Para ter uma versão executável local, sem servidor de desenvolvimento, rode `npm ci` e `npm run build`. A pasta `dist/` é o jogo pronto: sirva-a com `npm run preview` ou publique em qualquer hospedagem de arquivos estáticos.
 
 ## Instalação e execução
 
@@ -69,13 +78,13 @@ Outros comandos:
 | `npm run preview` | serve o conteúdo de `dist/` para conferir o build |
 | `npm run arte` | gera de novo toda a arte do jogo (tileset, mapas, sprites, fonte e título) |
 
-Para testar mais rápido, abra o jogo com `?debug` no fim do endereço (por exemplo, `http://localhost:5173/?debug`). As teclas 0 a 6 passam a pular horas, trocar de fase e forçar a vitória ou a derrota.
+Para testar sem esperar a partida inteira, abra o jogo com `?debug` no fim do endereço (por exemplo, `http://localhost:5173/?debug`). As teclas 0 a 6 pulam horas, trocam de fase e forçam a vitória ou a derrota.
 
 ## Equipe
 
 | Integrante | Parte do jogo |
 |---|---|
-| Pedro | base, gestão do repositório e interface |
+| Pedro | base, gestão do repositório, interface e música do menu e da Fase 1 |
 | Caio | Fase 1 |
 | Bernardo | Fase 2 |
-| Rafael | arte e som |
+| Rafael | arte, som e música da Fase 2 |
