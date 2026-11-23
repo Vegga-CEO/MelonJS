@@ -3,6 +3,8 @@ import { CONFIG } from "./config.js";
 import { ESTADOS } from "./estados.js";
 import { RECURSOS } from "./recursos.js";
 import { Fase1Stage } from "./stages/Fase1Stage.js";
+import { Fase2Stage } from "./stages/Fase2Stage.js";
+import { FimStage } from "./stages/FimStage.js";
 import { MenuStage } from "./stages/MenuStage.js";
 import { RecargaStage } from "./stages/RecargaStage.js";
 import { iniciarEntrada } from "./ui/entrada.js";
@@ -26,6 +28,8 @@ iniciarEntrada(app);
 state.transition("fade", "#000000", 300);
 state.set(ESTADOS.MENU, new MenuStage());
 state.set(ESTADOS.FASE1, new Fase1Stage());
+state.set(ESTADOS.FASE2, new Fase2Stage());
+state.set(ESTADOS.FIM, new FimStage());
 // a recarga é só uma passagem: entra sem fade (o fade vem na saída dela)
 state.set(ESTADOS.RECARGA, new RecargaStage());
 state.setTransition(ESTADOS.RECARGA, false);
