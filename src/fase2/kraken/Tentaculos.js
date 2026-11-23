@@ -6,10 +6,12 @@ import { coresDoKraken } from "./cores.js";
 import { brilhoRedondo, comecarPontos, ponto } from "./desenho.js";
 
 // Ataque dos tentáculos (minigame): o Kraken solta 3, 4 ou 5 tentáculos
-// (por fúria) deitados em volta do farol, cada um uma curva senoidal. Com o
-// cursor no círculo de partida e o botão esquerdo apertado, o jogador segue
-// a curva até a ponta e o tentáculo queima. Sair da faixa (KRAKEN.tentaculos
-// .folga px da curva), recuar mais de `recuoMaximo` px ou soltar o botão zera
+// (por fúria) deitados em volta do farol, cada um desenhado como uma curva
+// em zigue-zague. Com o cursor no círculo de partida e o botão esquerdo
+// apertado, o jogador arrasta o mouse em linha reta, de uma ponta à outra
+// (a "guia": o segmento entre a partida e a ponta), e o tentáculo queima. A
+// arte continua ondulada, só o traço é reto. Sair da faixa (KRAKEN.tentaculos
+// .folga px da guia), recuar mais de `recuoMaximo` px ou soltar o botão zera
 // o traço daquele tentáculo. No fim do tempo, cada tentáculo que sobrou bate
 // na torre uma vez; todos queimados antes, o ataque termina na hora.
 // Enquanto o ataque dura, ele mesmo solta ondas de pressão pelo diretor da
@@ -66,30 +68,22 @@ function sortear(min, max) {
     return min + Math.random() * (max - min);
 }
 
-// Projeção de (x, y) na curva do tentáculo: `u` é a posição ao longo da
-// curva (px a partir da partida) e `distancia` a distância até ela, pelo
-// segmento mais próximo.
+// Projeção de (x, y) na guia reta do tentáculo (da partida à ponta): `u` é a
+// posição ao longo dela (px a partir da partida, de 0 a `t.reto`) e
+// `distancia` a distância até ela.
 export function projetar(t, x, y) {
-    let melhorU = 0;
-    let melhor = Infinity;
-    const p = t.pontos;
-    for (let i = 0; i < p.length - 1; i++) {
-        const ax = p[i].x;
-        const ay = p[i].y;
-        const dx = p[i + 1].x - ax;
-        const dy = p[i + 1].y - ay;
-        const comprimento2 = dx * dx + dy * dy;
-        let k = comprimento2 > 0 ? ((x - ax) * dx + (y - ay) * dy) / comprimento2 : 0;
-        k = Math.max(0, Math.min(1, k));
-        const qx = ax + dx * k - x;
-        const qy = ay + dy * k - y;
-        const d = qx * qx + qy * qy;
-        if (d < melhor) {
-            melhor = d;
-            melhorU = t.acumulados[i] + k * (t.acumulados[i + 1] - t.acumulados[i]);
-        }
-    }
-    return { u: melhorU, distancia: Math.sqrt(melhor) };
+    const ax = t.partida.x;
+    const ay = t.partida.y;
+    const k = Math.max(0, Math.min(t.reto, (x - ax) * t.guiaX + (y - ay) * t.guiaY));
+    const qx = ax + t.guiaX * k - x;
+    const qy = ay + t.guiaY * k - y;
+    return { u: k, distancia: Math.hypot(qx, qy) };
+}
+
+// Quanto do traço (px na guia reta) já foi feito, convertido em px da curva
+// desenhada: a brasa percorre o zigue-zague na mesma proporção.
+function progressoNaCurva(t) {
+    return t.reto > 0 ? (t.progresso / t.reto) * t.comprimento : 0;
 }
 
 // Ponto e direção da curva na posição `u` (px a partir da partida).
@@ -143,12 +137,19 @@ function montarTentaculo({ pontos, centro }) {
     for (let i = 1; i < pontos.length; i++) {
         acumulados.push(acumulados[i - 1] + Math.hypot(pontos[i].x - pontos[i - 1].x, pontos[i].y - pontos[i - 1].y));
     }
+    const partida = pontos[0];
+    const fim = pontos[pontos.length - 1];
+    const reto = Math.hypot(fim.x - partida.x, fim.y - partida.y) || 1;
     const t = {
         pontos,
         acumulados,
+        // comprimento da curva desenhada e da guia reta (partida → ponta)
         comprimento: acumulados[acumulados.length - 1],
-        partida: pontos[0],
-        fim: pontos[pontos.length - 1],
+        reto,
+        guiaX: (fim.x - partida.x) / reto,
+        guiaY: (fim.y - partida.y) / reto,
+        partida,
+        fim,
         centro,
         progresso: 0,
         estado: "surgindo",
@@ -255,7 +256,7 @@ export class Tentaculos {
                 t.proximaFaisca -= dt;
                 if (t.proximaFaisca <= 0) {
                     t.proximaFaisca += INTERVALO_DA_FAISCA;
-                    const p = pontoEm(t, t.progresso);
+                    const p = pontoEm(t, progressoNaCurva(t));
                     emitirFaiscas(p.x, p.y, 1);
                 }
             }
@@ -374,7 +375,7 @@ export class Tentaculos {
         }
         this.ultimo.x = x;
         this.ultimo.y = y;
-        if (t.progresso >= t.comprimento - 4) {
+        if (t.progresso >= t.reto - 4) {
             this.queimar(t);
             return;
         }
@@ -400,7 +401,7 @@ export class Tentaculos {
 
     queimar(t) {
         t.estado = "queimando";
-        t.progresso = t.comprimento;
+        t.progresso = t.reto;
         t.t = 0;
         this.tracado = null;
         efeito("tentaculo-queima");
@@ -466,13 +467,14 @@ export class Tentaculos {
         const ativo = t.estado === "surgindo" || t.estado === "vivo" || t.estado === "tracando";
         const corpo = t.estado === "batendo" ? cores.alerta : cores.tentaculo;
         const amostras = t.amostras;
-        const passoFaixa = Math.max(1, Math.round(PASSO_FAIXA / PASSO_CORPO));
+        // quanto da curva já foi traçado
+        const feito = progressoNaCurva(t);
 
-        // faixa da folga
+        // faixa da folga: em volta da guia reta, que é por onde se arrasta
         if (ativo) {
             comecarPontos(renderer, cores.faixa, ALFA_FAIXA * alfa);
-            for (let i = 0; i < amostras.length; i += passoFaixa) {
-                ponto(renderer, amostras[i].x, amostras[i].y, 2 * c.folga);
+            for (let u = 0; u <= t.reto; u += PASSO_FAIXA) {
++                ponto(renderer, t.partida.x + t.guiaX * u, t.partida.y + t.guiaY * u, 2 * c.folga);
             }
             renderer.restore();
         }
@@ -487,14 +489,14 @@ export class Tentaculos {
         // corpo que falta traçar, com as contas claras
         comecarPontos(renderer, corpo, alfa);
         for (const a of amostras) {
-            if (a.u > t.progresso) {
+            if (a.u > feito) {
                 ponto(renderer, a.x, a.y, esp);
             }
         }
         renderer.restore();
         comecarPontos(renderer, cores.anelClaro, 0.7 * alfa);
         for (let i = 0; i < amostras.length; i += 4) {
-            if (amostras[i].u > t.progresso) {
+            if (amostras[i].u > feito) {
                 ponto(renderer, amostras[i].x, amostras[i].y - 1, 2);
             }
         }
@@ -504,7 +506,7 @@ export class Tentaculos {
         if (t.progresso > 0) {
             comecarPontos(renderer, cores.brasa, 0.9 * alfa);
             for (const a of amostras) {
-                if (a.u <= t.progresso) {
+                if (a.u <= feito) {
                     ponto(renderer, a.x, a.y, esp - 2);
                 }
             }
@@ -512,7 +514,7 @@ export class Tentaculos {
             comecarPontos(renderer, cores.anelEscuro, 0.8 * alfa);
             for (let i = 1; i < amostras.length; i += 3) {
                 const a = amostras[i];
-                if (a.u <= t.progresso && Math.sin(this.t * 17 + i * 1.7) > 0) {
+                if (a.u <= feito && Math.sin(this.t * 17 + i * 1.7) > 0) {
                     ponto(renderer, a.x, a.y, 2);
                 }
             }
@@ -526,7 +528,7 @@ export class Tentaculos {
         // setinhas do sentido: um V de dois traços de 4 px
         comecarPontos(renderer, cores.partida, 0.85 * alfa);
         for (const s of t.setas) {
-            if (s.u <= t.progresso) {
+            if (s.u <= feito) {
                 continue;
             }
             ponto(renderer, s.x, s.y, 2);
@@ -553,7 +555,7 @@ export class Tentaculos {
 
         // brilho na ponta do traço
         if (t.estado === "tracando") {
-            const p = pontoEm(t, t.progresso);
+            const p = pontoEm(t, feito);
             brilhoRedondo(renderer, cores.brasa, p.x, p.y, 9, 0.3);
         }
     }

@@ -282,9 +282,8 @@ export const KRAKEN = {
     quadroAltura: 160,
     // linha d'água dentro do quadro: o corpo sobe e afunda cortado aqui
     linhaDagua: 128,
-    // vida em dano do facho: com a lanterna no nível 2 a 4, jogando bem,
-    // vence em cerca de 65 a 110 s (nível 1 sem precisar de mira perfeita)
-    vida: 40,
+    // vida em dano do facho (era 40, agora 30% a mais)
+    vida: 52,
     // limiares de fúria (fração da vida; eram 2/3 e 1/3): a primeira vem aos
     // 75% e a segunda aos 50%
     furia: [0.75, 0.5],

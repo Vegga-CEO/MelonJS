@@ -48,7 +48,7 @@ const AVISOS = {
 
 // Dica dos tentáculos: só no primeiro ataque de tentáculos da sessão (zera
 // ao carregar a página); depois, o aviso curto de AVISOS.
-const DICA_DOS_TENTACULOS = "Segure o botão e siga o tentáculo do círculo até a ponta!";
+const DICA_DOS_TENTACULOS = "Segure o botão e arraste em linha reta, do círculo até a ponta!";
 export let primeiroTentaculos = true;
 
 // barra do tempo dos tentáculos, em pixels da tela: tamanho e distância
