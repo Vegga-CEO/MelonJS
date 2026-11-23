@@ -410,15 +410,16 @@ export const BAU = {
 // Lápides (src/fase1/monstros/Lapide.js): a partir de `desde`, a cada
 // `intervalo` s (sorteado) uma lápide brota num ponto "lapide" do mapa fora da
 // vista, até `maximo` vivas. A cada `zumbiACada` s solta um zumbi, até
-// `zumbisPorLapide` vivos dela. Vida em dano de luz (30 = 3 s de luz). Não
+// `zumbisPorLapide` vivos dela; no limite, o próximo só sai `zumbiACada` s
+// depois de um deles morrer. Vida em dano de luz (20 = 2 s de luz). Não
 // fere por contato nem bloqueia o caminho.
 export const LAPIDE = {
-    vida: 30,
+    vida: 20,
     intervalo: [80, 100],
     maximo: 2,
     desde: minutosDe(20),
     zumbiACada: 8,
-    zumbisPorLapide: 3,
+    zumbisPorLapide: 2,
     largura: 16,
     altura: 22,
     aviso: "Uma lápide brotou da areia!",
