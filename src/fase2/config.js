@@ -162,11 +162,13 @@ export const MONSTROS = {
     },
 };
 
-// Mini-chefes às 1h, 2h, 3h e 4h: o tipo de cada hora, escala do desenho,
-// vida (vezes a do comum), velocidade (fração da do comum), dano (vezes) e
-// a cada quantos segundos morde a torre quando chega.
+// Mini-chefes: um a cada `intervalo` segundos de jogo (era um por hora de
+// jogo, 1h a 4h), na ordem de `tipos`, até o Kraken acordar; escala do
+// desenho, vida (vezes a do comum), velocidade (fração da do comum), dano
+// (vezes) e a cada quantos segundos morde a torre quando chega.
 export const MINI_CHEFE = {
-    porHora: { 1: "morcego", 2: "piranha", 3: "serpente", 4: "morcego" },
+    intervalo: 30,
+    tipos: ["morcego", "piranha", "serpente", "morcego"],
     escala: 2,
     vida: 8,
     velocidade: 0.55,
@@ -174,7 +176,7 @@ export const MINI_CHEFE = {
     // mordida do mini-chefe tira cerca de 8,3 (morcego), 6,7 (piranha) e 10 (serpente)
     dano: 5 / 3,
     mordida: 1.8,
-    // vida da torre que volta ao matar um mini-chefe (fralção da vida máxima)
+    // vida da torre que volta ao matar um mini-chefe (fração da vida máxima)
     cura: 0.25,
     // os comuns aparecem mais devagar enquanto há mini-chefe (multiplica o intervalo)
     intervaloComChefe: 1.5,
