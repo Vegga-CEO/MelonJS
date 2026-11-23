@@ -439,15 +439,11 @@ export class Fase2Stage extends FaseBase {
         this.avisar("O Kraken desperta!");
     }
 
-    aoMudarHora({ minutos, hora }) {
+    aoMudarHora({ minutos }) {
         if (minutos < minutosDe(6)) {
             efeito("hora");
         }
-        if (minutos >= minutosDe(1) && minutos <= minutosDe(4)) {
-            if (this.diretor?.surgirMiniChefe(hora)) {
-                this.avisar("Mini-chefe à vista!");
-            }
-        } else if (minutos === minutosDe(5)) {
+        if (minutos === minutosDe(5)) {
             this.entrarNaEtapa("kraken");
             this.iniciarKraken();
         } else if (minutos >= minutosDe(6)) {

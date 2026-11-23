@@ -78,6 +78,9 @@ export class Diretor {
         this.engrenagens = [];
         this.ativo = true;
         this.espera = PRIMEIRA_ONDA;
+        // próximo mini-chefe: segundos até ele e quantos já vieram
+        this.esperaDoMiniChefe = MINI_CHEFE.intervalo;
+        this.miniChefesVindos = 0;
         this.somDeMorte = 0;
         this.aoMatar = null;
         this.tempo = 0;
@@ -238,12 +241,13 @@ export class Diretor {
         return m;
     }
 
-    // Mini-chefe da hora (1h a 4h).
-    surgirMiniChefe(hora) {
-        const tipo = MINI_CHEFE.porHora[hora];
+    // Próximo mini-chefe da fila `MINI_CHEFE.tipos`; null se já vieram todos.
+    surgirMiniChefe() {
+        const tipo = MINI_CHEFE.tipos[this.miniChefesVindos];
         if (tipo === undefined) {
             return null;
         }
+        this.miniChefesVindos++;
         const [chefe] = this.surgir(tipo, true);
         return chefe ?? null;
     }
@@ -256,6 +260,14 @@ export class Diretor {
         this.somDeMorte = Math.max(0, this.somDeMorte - dt);
 
         if (this.ativo) {
+            // mini-chefe a cada MINI_CHEFE.intervalo s de jogo, até acabarem
+            this.esperaDoMiniChefe -= dt;
+            if (this.esperaDoMiniChefe <= 0) {
+                this.esperaDoMiniChefe += MINI_CHEFE.intervalo;
+                if (this.surgirMiniChefe()) {
+                    this.fase.avisar("Mini-chefe à vista!");
+                }
+            }
             this.espera -= dt;
             if (this.espera <= 0) {
                 const onda = this.onda;
