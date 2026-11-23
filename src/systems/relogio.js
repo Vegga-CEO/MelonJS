@@ -69,9 +69,13 @@ export function ehHoraDeChefe(m = minutos) {
     return HORAS_DE_CHEFE.some(([inicio, fim]) => m >= inicio && m < fim);
 }
 
-// Segundos reais que uma hora de jogo dura agora.
+// Segundos reais que uma hora de jogo dura agora: chefe, Fase 2 (a partir
+// da 0h, fora do Kraken) ou Fase 1.
 export function segundosPorHoraAgora() {
-    return ehHoraDeChefe() ? CONFIG.segundosHoraChefe : CONFIG.segundosPorHora;
+    if (ehHoraDeChefe()) {
+        return CONFIG.segundosHoraChefe;
+    }
+    return minutos >= minutosDe(0) ? CONFIG.segundosPorHoraFase2 : CONFIG.segundosPorHora;
 }
 
 export const relogio = {

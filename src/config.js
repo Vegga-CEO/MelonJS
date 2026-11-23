@@ -23,4 +23,6 @@ export const CONFIG = {
     segundosHoraChefe: 150,
     // modo de teste: teclas 0 a 6 (src/systems/depuracao.js)
     debug: lerDebug(),
+    // segundos reais por hora de jogo na Fase 2 fora do Kraken, 0h às 5h; era 60
+    segundosPorHoraFase2: 36,
 };
