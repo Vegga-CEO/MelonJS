@@ -2,7 +2,8 @@ import { desenharIconeDaMelhoria } from "../fase2/PainelMelhorias.js";
 import { partida } from "../systems/partida.js";
 import { BAU } from "./config.js";
 
-// Cartas do baú do mini-chefe (conserto da torre): ao abrir o baú, o jogo para e o painel de cartas
+// Cartas do baú do mini-chefe e das peças da praia (conserto da torre): ao
+// abrir o baú ou pegar a peça, o jogo para e o painel de cartas
 // (src/fase2/PainelMelhorias.js) mostra as que ainda não chegaram ao
 // máximo. O efeito fica em partida (bateriaExtra, danoExtra), que a
 // lanterna (src/fase1/lanterna.js) lê, e volta com o ponto de retorno.

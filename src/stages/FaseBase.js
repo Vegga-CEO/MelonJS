@@ -81,7 +81,7 @@ export class FaseBase extends Stage {
 
     // ---- base ---------------------------------------------------------------
 
-    // Troca a etapa sem trocar de stage (23h → Holandês, 5h → Kraken):
+    // Troca a etapa sem trocar de stage (22h → Holandês, 5h → Kraken):
     // salva o ponto de retorno e troca a música.
     entrarNaEtapa(etapa) {
         this.etapa = etapa;

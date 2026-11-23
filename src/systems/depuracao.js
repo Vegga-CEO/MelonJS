@@ -27,7 +27,7 @@ const TECLA = {
 };
 
 // Texto curto das teclas, mostrado no rodapé da fase.
-export const DICA_DEPURACAO = "1 +1h · 2 22h50 · 3 Fase 2 · 4 4h50 · 5 vitória · 6 derrota · 0 invencível";
+export const DICA_DEPURACAO = "1 +1h · 2 21h50 · 3 Fase 2 · 4 4h50 · 5 vitória · 6 derrota · 0 invencível";
 
 export class Depuracao {
     // fase: a Stage da fase (FaseBase), para saber em que estado está e
@@ -80,9 +80,9 @@ export class Depuracao {
                 break;
             case 2:
                 if (naFase2) {
-                    irParaEtapa("fase1", { inicio: minutosDe(22, 50) });
+                    irParaEtapa("fase1", { inicio: minutosDe(21, 50) });
                 } else {
-                    relogio.definir(minutosDe(22, 50));
+                    relogio.definir(minutosDe(21, 50));
                     this.fase.aoPularTempo?.();
                 }
                 break;

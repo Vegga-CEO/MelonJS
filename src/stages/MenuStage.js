@@ -36,7 +36,7 @@ export const COMO_JOGAR = [
             "Mouse mira · clique liga a lanterna",
             "Segure E na porta da casa para recarregar",
             "Morrer acaba a noite: corra para a casa com 1 coração",
-            "Mini-chefes soltam um baú com uma carta",
+            "Peças e baús dão cartas de melhoria",
         ],
     },
     {

@@ -156,15 +156,17 @@ export const FASE1 = {
 };
 
 // ---- peças da torre (tarefa 7) ---------------------------------------------
-// Às 19h, 20h, 21h e 22h surge uma peça na praia, alternando as pontas.
+// Às 18h30, 19h30, 20h30 e 21h surge uma peça na praia, alternando as pontas
+// (era 19h, 20h, 21h e 22h; com o Holandês às 22h a última não cabia).
 export const PECAS = {
-    // horas cheias em que surge uma peça e o ícone de cada uma
+    // horas (cheias ou h:30) em que surge uma peça e o ícone de cada uma
     // (itens-<tema>.png: 0 tábua, 1 pedra, 2 ferro, 3 corda)
-    horas: [minutosDe(19), minutosDe(20), minutosDe(21), minutosDe(22)],
+    horas: [minutosDe(18, 30), minutosDe(19, 30), minutosDe(20, 30), minutosDe(21)],
     icones: [0, 1, 2, 3],
     // pontos do mapa, na ordem de alternância
     pontos: ["PecaEsquerda", "PecaDireita"],
-    // minutos de jogo até o mar levar a peça
+    // minutos de jogo até o mar levar a peça (a das 21h afunda às 21h50,
+    // antes do Holandês)
     duracao: 50,
     // afundando: segundos e px descendo
     afundar: 1.4,
@@ -460,7 +462,7 @@ export const DIRETOR = {
         { desde: minutosDe(19), caranguejo: { intervalo: [6.5, 9], maximo: 3 }, alma: null, lapide: null, vampiro: null },
         { desde: LAPIDE.desde, caranguejo: { intervalo: [5.5, 7.5], maximo: 4 }, alma: { intervalo: [8, 11], maximo: 2 }, lapide: ONDA_DE_LAPIDES, vampiro: null },
         { desde: MONSTROS.vampiro.desde, caranguejo: { intervalo: [5, 7.2], maximo: 4 }, alma: { intervalo: [7.2, 9.9], maximo: 2 }, lapide: ONDA_DE_LAPIDES, vampiro: ONDA_DE_VAMPIROS },
-        { desde: minutosDe(22), caranguejo: { intervalo: [3.9, 5.5], maximo: 5 }, alma: { intervalo: [5.5, 7.7], maximo: 3 }, lapide: ONDA_DE_LAPIDES, vampiro: ONDA_DE_VAMPIROS },
+        { desde: minutosDe(21, 30), caranguejo: { intervalo: [3.9, 5.5], maximo: 5 }, alma: { intervalo: [5.5, 7.7], maximo: 3 }, lapide: ONDA_DE_LAPIDES, vampiro: ONDA_DE_VAMPIROS },
     ],
     // teto de monstros vivos somando todos
     maximoTotal: 9,
@@ -474,7 +476,7 @@ export const DIRETOR = {
 export const AVISO = { duracao: 2.6, entrada: 0.25, saida: 0.6 };
 
 // ---- o Holandês Voador (tarefa 9) ---------------------------------------------
-// Chefe das 23h à 0h. Posições "do quadro"
+// Chefe das 22h às 23h. Posições "do quadro"
 // são pixels dentro de um quadro de navio-<tema>.png (192×160). O "morro" é
 // o topo da ilha com a casa e a torre: x do ponto "Torre" do mapa e y do
 // chão ali (Holandes.morro()); as distâncias "do morro" contam a partir dele.
@@ -493,8 +495,9 @@ export const HOLANDES = {
         { x: 100, y: 14 },
         { x: 150, y: 34 },
     ],
-    // vida de cada lanterna em dano de luz (10 por segundo: 9 s de luz; era 45)
-    vidaDaLanterna: 90,
+    // vida de cada lanterna em dano de luz (10 por segundo: 15 s de luz; era
+    // 45, depois 90)
+    vidaDaLanterna: 150,
     // ao apagar uma lanterna a bateria enche (como o baú do mini-chefe)
     encherBateriaAoApagar: true,
     // opacidade do navio fantasma depois de chegar

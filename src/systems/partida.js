@@ -13,7 +13,7 @@ import { minutosDe, relogio } from "./relogio.js";
 // "Tentar de novo" volta ao começo da etapa em que o jogador perdeu.
 export const ETAPAS = {
     fase1: { estado: ESTADOS.FASE1, inicio: minutosDe(18) },
-    holandes: { estado: ESTADOS.FASE1, inicio: minutosDe(23) },
+    holandes: { estado: ESTADOS.FASE1, inicio: minutosDe(22) },
     fase2: { estado: ESTADOS.FASE2, inicio: minutosDe(0) },
     kraken: { estado: ESTADOS.FASE2, inicio: minutosDe(5) },
 };
@@ -124,7 +124,7 @@ export function novaPartida() {
 }
 
 // Guarda o estado atual como começo da etapa (as stages chamam ao entrar
-// numa etapa: 18h, 23h, 0h e 5h).
+// numa etapa: 18h, 22h, 0h e 5h).
 export function salvarPontoDeRetorno(etapa) {
     if (!Object.hasOwn(ETAPAS, etapa)) {
         throw new Error(`partida: etapa desconhecida "${etapa}"`);
@@ -174,7 +174,7 @@ function mudarPara(estado, ...args) {
 
 // Abre a stage da etapa. A stage recebe { etapa, inicio } no onResetEvent;
 // inicio (minutos da noite) é a hora em que o relógio começa, e por padrão
-// é a hora da etapa. O modo de teste usa inicio para pular para 22h50.
+// é a hora da etapa. O modo de teste usa inicio para pular para 21h50.
 export function irParaEtapa(etapa, { inicio } = {}) {
     const dados = ETAPAS[etapa];
     if (dados === undefined) {

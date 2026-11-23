@@ -117,7 +117,7 @@ export class Monstro {
         diretor?.aoMorrer(this, pelaLuz);
     }
 
-    // Some com fumaça, sem contar como derrotado (fim das 18h às 23h).
+    // Some com fumaça, sem contar como derrotado (fim das 18h às 22h).
     sumir() {
         this.morrer(false);
     }

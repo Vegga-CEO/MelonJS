@@ -25,27 +25,27 @@ import { minutosDe, relogio } from "../systems/relogio.js";
 import { efeito } from "../systems/som.js";
 import { FaseBase } from "./FaseBase.js";
 
-// Fase 1: a ilha vista de lado, das 18h à 0h. Etapas: "fase1" (18h) e "holandes" (23h, chefe).
+// Fase 1: a ilha vista de lado, das 18h às 23h. Etapas: "fase1" (18h) e "holandes" (22h, chefe).
 //
 // Monta o mapa da ilha (src/fase1/mapa.js), o céu (ceu.js), a casa, a torre
 // e os postes (cenario.js), o faroleiro com a lanterna (Jogador.js,
 // lanterna.js), as partículas, a câmera com zoom (camera.js) e a escuridão
 // com as luzes (escuridao.js), desenhada no drawLighting.
 //
-// Das 18h às 23h (tarefa 7): as peças na praia e os baús (fase1/itens/),
+// Das 18h às 22h (tarefa 7): as peças na praia e os baús (fase1/itens/),
 // os monstros e os mini-chefes (fase1/monstros/Diretor.js) e a cena do
-// conserto da torre (fase1/cenaTorre.js). Às 23h os monstros somem e
+// conserto da torre (fase1/cenaTorre.js). Às 22h os monstros somem e
 // iniciarHolandes() começa o chefe.
 //
-// O baú do mini-chefe, depois da peça, dá a escolher uma carta (Bateria
-// maior ou Luz forte, src/fase1/cartasDoBau.js) no painel de cartas da
-// Fase 2 (abrirCartasDoBau): o jogo para enquanto ele está aberto.
+// A peça da praia e o baú do mini-chefe, depois da peça, dão a escolher uma
+// carta (Bateria maior ou Luz forte, src/fase1/cartasDoBau.js) no painel de
+// cartas da Fase 2 (abrirCartasDoBau): o jogo para enquanto ele está aberto.
 //
-// Das 23h à 0h (tarefa 9): o Holandês Voador (fase1/holandes/), que usa
+// Das 22h às 23h (tarefa 9): o Holandês Voador (fase1/holandes/), que usa
 // this.mapa, this.jogador, this.diretor (piratas), this.itens (a lente) e
 // avisar(texto). Vencido, ele solta a lente; pegar a lente (coletarLente)
-// põe a torre no estágio 5 com a cena e passa para a Fase 2. Se der 0h com
-// o navio inteiro, derrota "O Holandês escapou".
+// põe a torre no estágio 5 com a cena e passa para a Fase 2 (à 0h). Se der
+// 23h com o navio inteiro, derrota "O Holandês escapou".
 
 // ordem de desenho no mundo (as camadas de tiles usam Z_CAMADAS de mapa.js:
 // fundo 3, mar 4, decoração 5, terreno 8, plataformas 9, frente 14)
@@ -82,7 +82,7 @@ export class Fase1Stage extends FaseBase {
         this.itens = null;
         this.cena = null;
         this.holandes = null;
-        // a noite das 18h às 23h acabou (monstros limpos, Holandês chamado)
+        // a noite das 18h às 22h acabou (monstros limpos, Holandês chamado)
         this.holandesIniciado = false;
         // painel que para o jogo (as cartas do baú); null sem painel
         this.painel = null;
@@ -170,7 +170,7 @@ export class Fase1Stage extends FaseBase {
             nivelDe: nivelDaCarta,
         });
         this.proximoBatimento = 0;
-        // recomeçando às 23h (ou pulando para depois): direto no Holandês
+        // recomeçando às 22h (ou pulando para depois): direto no Holandês
         if (this.etapa === "holandes") {
             this.encerrarNoite();
         }
@@ -323,7 +323,7 @@ export class Fase1Stage extends FaseBase {
         this.escuridao.desenhar(renderer, camera, translateX, translateY, lerVista(camera));
     }
 
-    // ---- jogabilidade das 18h às 23h ------------------------------------
+    // ---- jogabilidade das 18h às 22h ------------------------------------
 
     // Aviso grande no meio da tela, com fade.
     avisar(texto, duracao) {
@@ -351,7 +351,8 @@ export class Fase1Stage extends FaseBase {
         return this.cena.iniciar({ estagioAntes: antes, texto: `Torre ${partida.pecas}/4` });
     }
 
-    // Baú aberto, depois da peça (e da cena da torre): o jogo para, como na
+    // Peça da praia pega ou baú aberto (Itens.js chama depois da peça e da
+    // cena da torre): o jogo para, como na
     // cena (relógio parado, jogador travado), e o painel mostra as cartas
     // que não chegaram ao máximo. Sem nenhuma, não abre. Devolve true se abriu.
     abrirCartasDoBau() {
@@ -406,7 +407,7 @@ export class Fase1Stage extends FaseBase {
         });
     }
 
-    // 23h: para os monstros comuns, limpa os que restam e chama o chefe.
+    // 22h: para os monstros comuns, limpa os que restam e chama o chefe.
     encerrarNoite() {
         if (this.holandesIniciado) {
             return;
@@ -417,7 +418,7 @@ export class Fase1Stage extends FaseBase {
         this.iniciarHolandes();
     }
 
-    // O Holandês Voador (23h, ou recomeçando na etapa "holandes"): um chefe
+    // O Holandês Voador (22h, ou recomeçando na etapa "holandes"): um chefe
     // novo, com tudo zerado.
     iniciarHolandes() {
         this.holandes?.destroy();
@@ -426,7 +427,17 @@ export class Fase1Stage extends FaseBase {
         this.holandes.iniciar();
     }
 
+    // A peça da praia marcada para esta hora (cheia ou h:30, PECAS.horas),
+    // se houver uma e o Holandês ainda não tiver chegado.
+    surgirPecaDaHora(minutos) {
+        const peca = PECAS.horas.indexOf(minutos);
+        if (peca >= 0 && !this.holandesIniciado) {
+            this.itens.surgirPeca(peca);
+        }
+    }
+
     aoMeiaHora({ minutos }) {
+        this.surgirPecaDaHora(minutos);
         const tipo = MINI_CHEFE.porMeiaHora[minutos];
         if (tipo !== undefined && !this.holandesIniciado) {
             this.diretor.surgirMiniChefe(tipo);
@@ -434,13 +445,10 @@ export class Fase1Stage extends FaseBase {
     }
 
     aoMudarHora({ minutos }) {
-        const peca = PECAS.horas.indexOf(minutos);
-        if (peca >= 0 && !this.holandesIniciado) {
-            this.itens.surgirPeca(peca);
-        }
-        if (minutos === minutosDe(23)) {
+        this.surgirPecaDaHora(minutos);
+        if (minutos === minutosDe(22)) {
             // sem as 4 peças a torre não fica pronta: a noite acaba aqui, antes
-            // do Holandês (depois das 22h50 nenhuma peça nova aparece)
+            // do Holandês (a última peça da praia afunda às 21h50)
             if (partida.pecas < PECAS.horas.length) {
                 relogio.parar();
                 perder("A torre não ficou pronta");
@@ -448,9 +456,9 @@ export class Fase1Stage extends FaseBase {
             }
             this.entrarNaEtapa("holandes");
             this.encerrarNoite();
-        } else if (minutos >= minutosDe(0)) {
+        } else if (minutos >= minutosDe(23)) {
             // vencido, o relógio para no naufrágio e a lente leva à Fase 2;
-            // 0h com o navio inteiro é derrota
+            // 23h com o navio inteiro é derrota
             relogio.parar();
             if (!this.holandes?.derrotado) {
                 perder("O Holandês escapou");
@@ -459,8 +467,8 @@ export class Fase1Stage extends FaseBase {
     }
 
     aoPularTempo() {
-        // o modo de teste pode pular para antes ou depois das 23h
-        const etapa = relogio.minutos() >= minutosDe(23) ? "holandes" : "fase1";
+        // o modo de teste pode pular para antes ou depois das 22h
+        const etapa = relogio.minutos() >= minutosDe(22) ? "holandes" : "fase1";
         if (etapa !== this.etapa) {
             this.entrarNaEtapa(etapa);
         }

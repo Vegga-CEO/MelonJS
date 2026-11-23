@@ -316,7 +316,7 @@ export function emitirEstrelinhas(x, y, quantidade = 6) {
 }
 
 // Fumaça subindo de (x, y) num raio de `raio` px (monstro sumindo). `acima`:
-// por cima da escuridão (a limpeza das 23h, que acontece no escuro).
+// por cima da escuridão (a limpeza das 22h, que acontece no escuro).
 export function emitirFumaca(x, y, quantidade = 8, raio = 6, acima = false) {
     if (ativa === null) {
         return;

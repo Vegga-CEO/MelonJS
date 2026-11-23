@@ -22,7 +22,7 @@ import { Navio } from "./Navio.js";
 import { chaoDoTerreno, Nevoa } from "./Nevoa.js";
 import { Pirata } from "./Pirata.js";
 
-// O Holandês Voador, chefe da Fase 1 das 23h à 0h (valores em HOLANDES de
+// O Holandês Voador, chefe da Fase 1 das 22h às 23h (valores em HOLANDES de
 // src/fase1/config.js).
 //
 // O "morro" é o topo da ilha com a casa e a torre: x do ponto Torre do mapa
@@ -49,10 +49,10 @@ import { Pirata } from "./Pirata.js";
 // ao fundo (encolhe e some atrás do horizonte), com explosões, espuma e
 // bolhas, o relógio para e a lente é lançada ao chão perto da torre
 // (itens.surgirPecaEm). Pegar a lente é com a fase (Fase1Stage.coletarLente).
-// Se der 0h com o navio inteiro, a fase chama a derrota "O Holandês escapou".
+// Se der 23h com o navio inteiro, a fase chama a derrota "O Holandês escapou".
 //
 // A Fase1Stage cria um Holandês novo em iniciarHolandes() (o "Tentar de
-// novo" volta às 23h com tudo zerado), põe a camada no mundo e chama
+// novo" volta às 22h com tudo zerado), põe a camada no mundo e chama
 // atualizar(s) fora da pausa e das cenas, e desenharHud na tela.
 
 const ICONE_LENTE = HOLANDES.lente.icone;
