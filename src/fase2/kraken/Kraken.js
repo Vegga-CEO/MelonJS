@@ -24,8 +24,8 @@ import { Tentaculos } from "./Tentaculos.js";
 // disparado que contém um olho tira vida, um acerto por disparo) e um
 // ataque, alternando anéis, cardume e o minigame dos tentáculos. Cada
 // ataque fica mais forte conforme a vida cai (fúria 0, 1 e 2; KRAKEN.furia).
-// Durante os tentáculos, o próprio ataque solta ondas de monstros pelo
-// diretor e uma barra fina abaixo da barra de vida mostra o tempo.
+// Durante os tentáculos não nasce monstro e uma barra fina abaixo da barra
+// de vida mostra o tempo.
 //
 // Fim: com a vida em 0 o relógio para, ele afunda com tremor, clarões e
 // faíscas, e vem a vitória (partida.vencer). Se der 6h antes, a Fase2Stage
